@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>模擬 Microsoft Access 自學練習(二):新增欄位 + 表單精靈</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;font-size:14px;background:#dcdcdc;color:#1f1f1f;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+#top{height:46px;background:#20476b;color:#fff;display:flex;align-items:center;padding:0 12px;gap:14px}
+#top .t{font-weight:bold;font-size:15px}
+#top .sp{flex:1}
+#top .info{font-size:13px;opacity:.9}
+#top button{border:0;border-radius:4px;padding:7px 12px;font-size:13px}
+.bt-fin{background:#2e8b57;color:#fff;font-weight:bold}
+.bt-rst{background:#5a7fa5;color:#fff}
+#wrap{display:flex;height:calc(100% - 46px)}
+#left{flex:1;min-width:0;padding:8px;display:flex}
+#guide{width:344px;background:#f7f7f7;border-left:2px solid #b9b9b9;overflow:auto;padding:10px}
+#win{flex:1;display:flex;flex-direction:column;background:#fff;border:1px solid #999;box-shadow:0 2px 8px rgba(0,0,0,.25);min-width:0}
+#titlebar{background:#a4373a;color:#fff;height:30px;display:flex;align-items:center;padding:0 8px;font-size:12.5px;gap:10px}
+#qat{display:flex;gap:6px}
+#qat span{cursor:pointer;padding:1px 4px;border-radius:3px}
+#qat span:hover{background:rgba(255,255,255,.25)}
+#tt{flex:1;text-align:center;opacity:.95}
+#tabs{display:flex;background:#f1f1f1;border-bottom:1px solid #d0d0d0;font-size:13px}
+#tabs div{padding:6px 14px;cursor:pointer;color:#333}
+#tabs div:hover{background:#e4e4e4}
+#tabs div.on{background:#fff;border:1px solid #d0d0d0;border-bottom:1px solid #fff;margin-bottom:-1px;font-weight:bold;color:#a4373a}
+#tabs div.ctx{color:#1a6b3c}
+#ribbon{background:#fff;border-bottom:1px solid #c8c8c8;display:flex;padding:4px 6px;min-height:78px;gap:2px;overflow-x:auto}
+.grp{display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid #e2e2e2;padding:2px 8px}
+.grp .gi{display:flex;gap:4px}
+.grp .gn{text-align:center;font-size:11px;color:#777;padding-top:3px}
+.rb{border:1px solid transparent;background:none;border-radius:3px;width:68px;padding:3px 2px;font-size:11.5px;line-height:1.25;text-align:center}
+.rb .ic{display:block;font-size:19px}
+.rb:hover{background:#fde9ea;border-color:#e3b6b8}
+.rb.act{background:#fbd6d8;border-color:#c98488}
+#body{flex:1;display:flex;min-height:0}
+#nav{width:176px;background:#eef1f5;border-right:1px solid #c8c8c8;font-size:12.5px;overflow:auto}
+#nav .h{background:#dfe6ee;padding:5px 6px;font-weight:bold;border-bottom:1px solid #c8c8c8}
+#nav .g{padding:5px 6px;color:#555;font-weight:bold}
+#nav .it{padding:3px 6px 3px 18px;cursor:pointer;user-select:none}
+#nav .it:hover{background:#cfe0f2}
+#nav .it.on{background:#bcd4ee}
+#nav .none{padding:3px 6px 3px 18px;color:#999}
+#doc{flex:1;display:flex;flex-direction:column;min-width:0;background:#f3f3f3}
+#doctabs{display:flex;background:#e9e9e9;border-bottom:1px solid #c8c8c8;font-size:12.5px}
+#doctabs .dt{padding:4px 10px;background:#fff;border:1px solid #c8c8c8;border-bottom:0;margin:2px 0 0 3px}
+#docarea{flex:1;overflow:auto}
+#status{height:24px;background:#a4373a;color:#fff;font-size:12px;display:flex;align-items:center;padding:0 8px;gap:8px}
+#status .sp{flex:1}
+#status .vb{cursor:pointer;padding:1px 5px;border-radius:3px}
+#status .vb:hover{background:rgba(255,255,255,.3)}
+#status .vb.on{background:rgba(255,255,255,.45)}
+table.dg{border-collapse:collapse;width:100%;background:#fff}
+table.dg th{background:#e8ecf1;border:1px solid #b9c2cc;font-size:12.5px;padding:4px;font-weight:normal}
+table.dg td{border:1px solid #c9d0d8;padding:0}
+table.dg td.rh{width:26px;text-align:center;background:#e8ecf1;cursor:pointer;font-size:12px}
+table.dg tr.sel td.rh{background:#c9d7e6}
+table.dg input,table.dg select{width:100%;border:0;padding:4px;font-family:inherit;font-size:13px;background:transparent}
+table.dg input:focus,table.dg select:focus{outline:2px solid #7aa5d2;background:#fffbe6}
+.props{border-top:3px solid #a4373a;background:#eef1f5;padding:6px}
+.props .ttl{font-weight:bold;font-size:12.5px;margin-bottom:4px}
+.props table{border-collapse:collapse;background:#fff;width:100%;max-width:640px}
+.props td{border:1px solid #cdd4dc;padding:2px 5px;font-size:12.5px}
+.props td.k{width:150px;background:#f4f6f9}
+.props input,.props select{width:100%;border:1px solid #9ab;padding:2px;font-family:inherit;font-size:12.5px}
+.props .ro{color:#888}
+table.ds{border-collapse:collapse;background:#fff}
+table.ds th{background:#e8ecf1;border:1px solid #b9c2cc;padding:5px 8px;font-size:12.5px;min-width:92px}
+table.ds td{border:1px solid #d5dbe2;padding:0}
+table.ds td.rh{width:24px;text-align:center;background:#e8ecf1;cursor:pointer;color:#a4373a}
+table.ds input{width:100%;min-width:92px;border:0;padding:5px 8px;font-size:13px;font-family:inherit}
+table.ds input:focus{outline:2px solid #f0a30a;background:#fffbe6}
+table.ds input.num{text-align:right}
+#fv{padding:14px}
+.fbox{background:#fff;border:1px solid #b0b0b0;max-width:520px;box-shadow:0 1px 5px rgba(0,0,0,.18)}
+.fhd{background:#dfe6ee;border-bottom:1px solid #b9c2cc;padding:9px 12px;font-size:17px;font-weight:bold;color:#20476b}
+.frow{display:flex;align-items:center;padding:5px 14px;gap:10px}
+.frow .lb{width:88px;font-size:13px;color:#333;text-align:right}
+.frow input{flex:1;padding:5px 7px;border:1px solid #9aa8b6;font-size:13.5px;font-family:inherit;background:#fff}
+.frow input:focus{outline:2px solid #f0a30a;background:#fffbe6}
+.frow input.num{text-align:right}
+.fnav{display:flex;align-items:center;gap:4px;padding:6px 10px;margin-top:6px;border-top:1px solid #ccc;background:#eef1f5;font-size:12px}
+.fnav button{border:1px solid #9aa8b6;background:#f7f9fb;border-radius:3px;padding:2px 7px;font-size:12px}
+.fnav button:hover{background:#e2ebf5}
+.fnav .pos{border:1px solid #9aa8b6;background:#fff;padding:2px 8px;min-width:34px;text-align:center}
+.wizb{background:#fff;padding:12px;font-size:13px;width:560px}
+.wizhead{background:#20476b;color:#fff;padding:8px 12px;font-size:14px;font-weight:bold}
+.wizrow{display:flex;gap:10px;align-items:stretch}
+select.lst{width:100%;height:158px;font-family:inherit;font-size:13px}
+.mvb{display:flex;flex-direction:column;gap:5px;justify-content:center}
+.mvb button{width:44px;padding:3px 0;border:1px solid #888;background:#eee;border-radius:3px}
+.lay label{display:block;margin:5px 0;font-size:13.5px;cursor:pointer}
+.prev{flex:1;border:1px solid #999;background:#fff;padding:8px;min-height:150px}
+.pv-l{height:9px;background:#cfd8e2;margin:4px 0;border:1px solid #b6c1cd}
+.pv-r{display:flex;gap:4px;margin:3px 0}
+.pv-r i{display:block;height:9px;flex:1;background:#cfd8e2;border:1px solid #b6c1cd}
+#guide h3{margin:4px 0 8px;font-size:15px;color:#20476b}
+.step{border:1px solid #d6d6d6;background:#fff;border-radius:5px;padding:7px 8px;margin-bottom:6px;font-size:13px}
+.step.cur{border-color:#2e8b57;box-shadow:0 0 0 2px #cdebd9}
+.step.ok{background:#f2fbf5;color:#4a6a56}
+.step .n{font-weight:bold}
+.step .d{font-size:12.5px;color:#555;margin-top:3px;display:none}
+.step.cur .d{display:block}
+.step .hintbox{display:none;margin-top:5px;background:#fff8e1;border:1px dashed #e0b400;padding:5px;font-size:12.5px}
+.hb{margin-top:5px;border:1px solid #cbb;background:#f6efef;border-radius:4px;padding:3px 8px;font-size:12px}
+#reftab,#reftab2{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:6px}
+#reftab th,#reftab td,#reftab2 th,#reftab2 td{border:1px solid #c8c8c8;padding:3px 5px;text-align:center}
+#reftab th,#reftab2 th{background:#e8ecf1}
+.gsec{margin-top:12px;border-top:1px solid #ccc;padding-top:8px}
+#log{height:88px;overflow:auto;background:#fff;border:1px solid #ccc;font-size:11.5px;padding:4px;color:#555}
+#layer{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;z-index:50}
+.dlg{background:#f0f0f0;border:1px solid #666;box-shadow:0 6px 20px rgba(0,0,0,.4);min-width:340px;max-width:640px}
+.dlg .dh{background:#a4373a;color:#fff;padding:5px 9px;font-size:13px}
+.dlg .db{padding:14px;font-size:13.5px;line-height:1.55;background:#fff}
+.dlg .df{padding:9px;display:flex;justify-content:flex-end;gap:8px;background:#f0f0f0}
+.dlg .df button{min-width:84px;padding:5px 10px;border:1px solid #888;background:#e9e9e9;border-radius:3px;font-size:13px}
+.dlg .df button:hover{background:#dcdcdc}
+.dlg .df button:disabled{color:#aaa;cursor:default}
+.dlg input[type=text]{width:100%;padding:5px;font-size:13.5px;font-family:inherit;border:1px solid #888}
+#ctx{position:fixed;background:#fff;border:1px solid #999;box-shadow:2px 3px 8px rgba(0,0,0,.3);z-index:60;display:none;font-size:13px;min-width:172px;padding:3px 0}
+#ctx div{padding:5px 14px;cursor:pointer}
+#ctx div:hover{background:#cfe0f2}
+#ctx .sepx{height:1px;background:#ddd;margin:3px 0;padding:0;cursor:default}
+.cover{position:fixed;inset:0;background:#20476b;color:#fff;z-index:80;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;color:#222;border-radius:8px;padding:24px 28px;width:min(740px,94vw);max-height:92vh;overflow:auto}
+.card h1{margin:0 0 6px;font-size:20px;color:#20476b}
+.card label{display:block;margin:10px 0 3px;font-size:13px;font-weight:bold}
+.card input[type=text]{width:100%;padding:7px;font-size:14px;border:1px solid #aaa;border-radius:4px;font-family:inherit}
+.card .go{margin-top:16px;background:#2e8b57;color:#fff;border:0;border-radius:5px;padding:10px 18px;font-size:15px;font-weight:bold}
+.card ul{font-size:13px;line-height:1.6;padding-left:20px}
+#rptOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:90;display:none;align-items:center;justify-content:center}
+.tb{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.tb button{padding:8px 14px;border:1px solid #888;background:#eee;border-radius:4px;font-size:13.5px}
+.tb button.pri{background:#20476b;color:#fff;border-color:#20476b;font-weight:bold}
+</style>
+</head>
+<body>
+
+<!-- ===== 開始畫面 ===== -->
+<div class="cover" id="start">
+ <div class="card">
+  <h1>模擬 Microsoft Access 自學練習(二)</h1>
+  <div style="font-size:15px;margin-bottom:6px">新增欄位「班別」「班號」+ 以<b>表單精靈</b>建立表單(中三 電腦科)&nbsp;
+   <span id="coverFull" style="color:#a4373a;font-weight:bold"></span></div>
+  <ul>
+   <li>本練習<b>承接練習一</b>:資料庫中已有資料表「學生個人資料」(4 個欄位、6 筆記錄)。</li>
+   <li>你要做的:回到<b>設計檢視</b>加入 2 個欄位 → <b>儲存</b> → 用<b>表單精靈</b>建表單 → 在<b>表單</b>中補上班別、班號 → 新增第 7 筆記錄。</li>
+   <li>右方有逐步指示,有需要可按「顯示提示」(<span id="coverPen"></span>)。</li>
+   <li>完成後按右上角<b>「完成練習,產生報告」</b>,下載報告檔並上傳給老師。</li>
+  </ul>
+  <label>姓名 *</label><input type="text" id="s_name" placeholder="例:陳大文">
+  <label>班別 *</label><input type="text" id="s_cls" placeholder="例:3A">
+  <label>班號 / 學號</label><input type="text" id="s_id" placeholder="例:12">
+  <button class="go" id="btnStart">開始練習</button>
+ </div>
+</div>
+
+<!-- ===== 主介面 ===== -->
+<div id="top">
+ <span class="t">練習二:新增欄位 + 表單精靈</span>
+ <span class="info" id="topinfo"></span>
+ <span class="sp"></span>
+ <span class="info" id="timer">00:00</span>
+ <button class="bt-rst" data-act="reset">重新開始</button>
+ <button class="bt-fin" data-act="finish">完成練習,產生報告</button>
+</div>
+
+<div id="wrap">
+ <div id="left">
+  <div id="win">
+   <div id="titlebar">
+     <span id="qat"><span data-act="btn" data-arg="qsave" title="儲存 (Ctrl+S)">💾</span><span title="復原">↩</span><span title="重複">↪</span></span>
+     <span id="tt"></span><span>— ▫ ✕</span>
+   </div>
+   <div id="tabs"></div>
+   <div id="ribbon"></div>
+   <div id="body">
+     <div id="nav"></div>
+     <div id="doc"><div id="doctabs"></div><div id="docarea"></div></div>
+   </div>
+   <div id="status"><span id="stmsg"></span><span class="sp"></span><span id="viewbtns"></span></div>
+  </div>
+ </div>
+ <div id="guide"></div>
+</div>
+
+<div id="layer"></div>
+<div id="ctx"></div>
+<div id="rptOverlay"><div class="card" id="rptCard"></div></div>
+
+<script>
+/* ============================================================
+   1. 練習設定
+   ============================================================ */
+const EX={
+  id:'EX2',
+  title:'練習二:新增欄位「班別」「班號」並以表單精靈建立表單',
+  dbFile:'學生資料.accdb',
+  tableName:'學生個人資料',
+  formName:'學生個人資料',
+  layout:'單欄式',
+  baseFields:[
+    {name:'學生編號',type:'文字',size:'3'},
+    {name:'姓名',type:'文字',size:'20'},
+    {name:'身高',type:'數字',size:'整數'},
+    {name:'體重',type:'數字',size:'整數'}
+  ],
+  newFields:[
+    {name:'班別',type:'文字',size:'2'},
+    {name:'班號',type:'文字',size:'2'}
+  ],
+  baseData:[
+    ['1','王一全','168','59'],
+    ['2','陳明','163','60'],
+    ['3','張恩芳','155','48'],
+    ['4','李霞','152','45'],
+    ['5','吳金鳳','166','50'],
+    ['6','何明坤','180','68']
+  ],
+  addData:[['3A','30'],['3A','01'],['3B','05'],['3B','15'],['3C','24'],['3D','09']],
+  rec7:['7','李快樂','164','56','3A','22']
+};
+EX.allFieldNames=EX.baseFields.concat(EX.newFields).map(f=>f.name);
+
+/* ---------- 分數制:改這一行即可切換總分 ---------- */
+const MARK_SET='20';   // '20' = 20 分制 / '10' = 10 分制
+const MARK_SETS={
+ '20':{marks:{design:2,fname:0.5,ftype:0.5,fsize:0.5,save:2,wizFields:1,wizLayout:1,wizTitle:1,wizDone:1,rec:1,rec7:3},
+       penalty:{hint:0.5,hintMax:2,err:0.5,errMax:2}},
+ '10':{marks:{design:1,fname:0.25,ftype:0.25,fsize:0.25,save:1,wizFields:0.5,wizLayout:0.5,wizTitle:0.5,wizDone:0.5,rec:0.5,rec7:1.5},
+       penalty:{hint:0.25,hintMax:1,err:0.25,errMax:1}}
+};
+EX.marks=MARK_SETS[MARK_SET].marks;
+EX.penalty=MARK_SETS[MARK_SET].penalty;
+
+const TYPES=['','文字','備忘','數字','日期/時間','貨幣','自動編號','是/否','OLE 物件','超連結','附件','計算','查閱精靈...'];
+const NUMSIZE=['位元組','整數','長整數','單精度浮點數','雙精度浮點數','複製識別碼','小數'];
+const LAYOUTS=['單欄式','表格式','資料工作表','對齊'];
+
+/* ============================================================
+   2. 狀態
+   ============================================================ */
+const st={
+ info:{name:'',cls:'',sid:''}, start:null, submits:0,
+ tab:'create', visited:{}, view:'none', navSel:null,
+ savedFields:EX.baseFields.map(f=>({name:f.name,type:f.type,size:f.size})),
+ rows:[], sel:0, pk:0,
+ records:EX.baseData.map(r=>{const o={};EX.baseFields.forEach((f,i)=>o[f.name]=r[i]);return o;}),
+ selRec:-1,
+ enteredDesign:false, viaNavDesign:false, saveCount:0, tableDirty:false,
+ wizOpened:false, formCreated:false, formFields:[], formLayout:'', formTitle:'',
+ curRec:0, newRec:false, formEdits:0, dsEdits:0,
+ hints:0, errs:0, hintShown:{}, log:[]
+};
+st.rows=st.savedFields.map(f=>({name:f.name,type:f.type,size:f.size,desc:'',orig:f.name}));
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtM=n=>String(+Number(n).toFixed(2));
+function log(t){st.log.push(new Date().toLocaleTimeString('zh-HK',{hour12:false})+' '+t);if(st.log.length>250)st.log.shift();}
+function setStatus(t){$('#stmsg').textContent=t;}
+function pad(){while(st.rows.length<9)st.rows.push({name:'',type:'',size:'',desc:'',orig:''});
+ if(st.rows[st.rows.length-1].name.trim()!=='')st.rows.push({name:'',type:'',size:'',desc:'',orig:''});}
+const dRows=()=>st.rows.filter(r=>r.name.trim()!=='');
+const fdef=n=>st.savedFields.find(f=>f.name===n);
+const fullMark=()=>{const M=EX.marks;return M.design+2*(M.fname+M.ftype+M.fsize)+M.save+M.wizFields+M.wizLayout+M.wizTitle+M.wizDone+6*M.rec+M.rec7;};
+
+/* ============================================================
+   3. 報告樣式
+   ============================================================ */
+const RPT_CSS=`
+.rpt-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:2px solid #20476b;padding-bottom:10px;margin-bottom:6px}
+.rpt-head h1{margin:0 0 6px;font-size:19px;color:#20476b}
+.rpt-head .meta{font-size:13px;line-height:1.65}
+.scorebox{border:3px solid #20476b;border-radius:8px;background:#f2f6fb;padding:8px 16px;text-align:center;min-width:180px;flex:0 0 auto}
+.scorebox .sb-l{font-size:12px;color:#20476b;letter-spacing:1px}
+.scorebox .sb-s{font-size:36px;font-weight:bold;color:#20476b;line-height:1.15}
+.scorebox .sb-s .sb-t{font-size:17px;color:#555;font-weight:normal}
+.scorebox .sb-p{font-size:12.5px;color:#333;border-top:1px solid #a9bcd0;margin-top:4px;padding-top:3px}
+table.rpt{border-collapse:collapse;width:100%;font-size:12.5px;margin:8px 0}
+table.rpt th,table.rpt td{border:1px solid #bbb;padding:4px 6px}
+table.rpt th{background:#e8ecf1}
+table.rpt td.c,table.rpt th.c{text-align:center}
+.bad{color:#b00}.good{color:#0a7a3f}
+.dig{font-family:Consolas,monospace;font-size:11px;word-break:break-all;background:#f4f4f4;border:1px solid #ccc;padding:6px}
+.signbox{border:1px solid #999;padding:8px;font-size:12.5px;margin-top:10px;color:#444}
+h2.rh2{font-size:15px;color:#20476b;margin:14px 0 4px}
+`;
+document.head.insertAdjacentHTML('beforeend','<style>'+RPT_CSS+'</style>');
+
+/* ============================================================
+   4. 對話框 / 右鍵選單
+   ============================================================ */
+function dlg(title,html,btns){
+ const L=$('#layer');
+ L.innerHTML='<div class="dlg"><div class="dh">'+esc(title)+'</div><div class="db">'+html+'</div><div class="df">'+
+  btns.map((b,i)=>'<button data-i="'+i+'">'+esc(b.label)+'</button>').join('')+'</div></div>';
+ L.style.display='flex';
+ L.querySelectorAll('.df button').forEach(b=>b.onclick=()=>{L.style.display='none';const f=btns[+b.dataset.i].fn;if(f)f();});
+}
+function msgbox(t,after){dlg('Microsoft Access',t,[{label:'確定',fn:after}]);}
+function wrongClick(m){st.errs++;log('誤操作:'+m);setStatus('⚠ '+m);msgbox(m);}
+function showCtx(x,y,items){
+ const c=$('#ctx');
+ c.innerHTML=items.map((it,i)=>it.sep?'<div class="sepx"></div>':'<div data-i="'+i+'">'+esc(it.label)+'</div>').join('');
+ c.style.display='block';c.style.left=Math.min(x,innerWidth-190)+'px';c.style.top=y+'px';
+ c.querySelectorAll('div[data-i]').forEach(d=>d.onclick=()=>{c.style.display='none';const f=items[+d.dataset.i].fn;if(f)f();});
+}
+document.addEventListener('mousedown',e=>{if(!e.target.closest('#ctx'))$('#ctx').style.display='none';});
+
+/* ============================================================
+   5. 功能區
+   ============================================================ */
+const RIBBON={
+ file:{label:'檔案'},
+ home:{label:'常用',groups:[
+  {n:'檢視',i:[{id:'view',ic:'🗔',l:'檢視'}]},
+  {n:'剪貼簿',i:[{id:'x',ic:'📋',l:'貼上'},{id:'x',ic:'✂️',l:'剪下'},{id:'x',ic:'🧾',l:'複製'}]},
+  {n:'記錄',i:[{id:'recnew',ic:'➕',l:'新增'},{id:'recdel',ic:'❌',l:'刪除'},{id:'qsave',ic:'💾',l:'儲存'}]},
+  {n:'排序與篩選',i:[{id:'x',ic:'🔼',l:'遞增'},{id:'x',ic:'🔽',l:'遞減'},{id:'x',ic:'🔻',l:'篩選'}]},
+  {n:'尋找',i:[{id:'x',ic:'🔍',l:'尋找'},{id:'x',ic:'🔁',l:'取代'}]}
+ ]},
+ create:{label:'建立',groups:[
+  {n:'資料表',i:[{id:'x',ic:'▦',l:'資料表'},{id:'tbldesign',ic:'📐',l:'資料表設計'}]},
+  {n:'查詢',i:[{id:'x',ic:'🧙',l:'查詢精靈'},{id:'x',ic:'🔎',l:'查詢設計'}]},
+  {n:'表單',i:[{id:'formauto',ic:'🗒️',l:'表單'},{id:'x',ic:'🧰',l:'表單設計'},{id:'x',ic:'⬜',l:'空白表單'},{id:'wiz',ic:'🧙‍♂️',l:'表單精靈'},{id:'x',ic:'🧭',l:'導覽'}]},
+  {n:'報表',i:[{id:'x',ic:'📊',l:'報表'},{id:'x',ic:'🏷️',l:'標籤'}]}
+ ]},
+ ext:{label:'外部資料',groups:[
+  {n:'匯入與連結',i:[{id:'x',ic:'📥',l:'新資料來源'}]},{n:'匯出',i:[{id:'x',ic:'📤',l:'Excel'}]}
+ ]},
+ tools:{label:'資料庫工具',groups:[
+  {n:'關聯',i:[{id:'x',ic:'🔗',l:'資料庫關聯圖'}]},{n:'巨集',i:[{id:'x',ic:'⚙️',l:'Visual Basic'}]}
+ ]},
+ design:{label:'設計',ctx:'資料表工具',groups:[
+  {n:'檢視',i:[{id:'view',ic:'🗔',l:'檢視'}]},
+  {n:'工具',i:[{id:'pk',ic:'🔑',l:'主索引鍵'},{id:'insrow',ic:'⬆️',l:'插入列'},{id:'delrow',ic:'🗑️',l:'刪除列'}]},
+  {n:'顯示/隱藏',i:[{id:'x',ic:'ℹ️',l:'屬性表'},{id:'x',ic:'📑',l:'索引'}]}
+ ]}
+};
+function renderRibbon(){
+ const order=['file','home','create','ext','tools'].concat(st.view==='design'?['design']:[]);
+ $('#tabs').innerHTML=order.map(k=>'<div data-act="tab" data-arg="'+k+'" class="'+(st.tab===k?'on ':'')+(RIBBON[k].ctx?'ctx':'')+'">'+
+   (RIBBON[k].ctx?RIBBON[k].ctx+' · ':'')+RIBBON[k].label+'</div>').join('');
+ const g=(RIBBON[st.tab]&&RIBBON[st.tab].groups)||[];
+ $('#ribbon').innerHTML=g.map(gr=>'<div class="grp"><div class="gi">'+gr.i.map(b=>
+   '<button class="rb'+((b.id==='pk'&&st.pk===st.sel)?' act':'')+'" data-act="btn" data-arg="'+b.id+'"><span class="ic">'+b.ic+'</span>'+b.l+'</button>').join('')+
+   '</div><div class="gn">'+gr.n+'</div></div>').join('');
+}
+
+/* ============================================================
+   6. 文件區
+   ============================================================ */
+function renderDoc(){
+ const d=$('#docarea'),dt=$('#doctabs');
+ if(st.view==='none'){
+  dt.innerHTML='';
+  d.innerHTML='<div style="padding:36px;color:#666;font-size:14px;line-height:1.9">'+
+   '資料庫 <b>'+esc(EX.dbFile)+'</b> 已開啟。<br>左邊「導覽窗格」中有練習一建立的資料表 <b>'+esc(EX.tableName)+'</b>。<br>'+
+   '請依右方指示,先<b>回到設計檢視</b>加入新欄位。</div>';
+  return;
+ }
+ if(st.view==='design'){dt.innerHTML='<div class="dt">📐 '+esc(EX.tableName)+'(設計檢視)'+(st.tableDirty?' *':'')+' &nbsp;✕</div>';d.innerHTML=designHTML();return;}
+ if(st.view==='datasheet'){dt.innerHTML='<div class="dt">▦ '+esc(EX.tableName)+' &nbsp;✕</div>';d.innerHTML=dsHTML();return;}
+ if(st.view==='form'){dt.innerHTML='<div class="dt">🗒️ '+esc(st.formTitle)+'(表單)&nbsp;✕</div>';d.innerHTML=formHTML();return;}
+}
+function designHTML(){
+ pad();
+ let h='<table class="dg"><thead><tr><th style="width:26px"></th><th style="width:34%">欄位名稱</th><th style="width:26%">資料類型</th><th>描述 (選用)</th></tr></thead><tbody>';
+ st.rows.forEach((r,i)=>{
+  const m=(st.pk===i?'🔑':(st.sel===i?'▶':''));
+  h+='<tr class="'+(st.sel===i?'sel':'')+'"><td class="rh" data-act="drow" data-arg="'+i+'">'+m+'</td>'+
+   '<td><input class="dg-name" data-r="'+i+'" maxlength="64" value="'+esc(r.name)+'"></td>'+
+   '<td><select class="dg-type" data-r="'+i+'">'+TYPES.map(t=>'<option '+(t===r.type?'selected':'')+'>'+t+'</option>').join('')+'</select></td>'+
+   '<td><input class="dg-desc" data-r="'+i+'" value="'+esc(r.desc)+'"></td></tr>';
+ });
+ h+='</tbody></table>'+propsHTML();
+ return h;
+}
+function propsHTML(){
+ const r=st.rows[st.sel]||{name:'',type:'',size:''};
+ let sz;
+ if(r.type==='文字')sz='<input class="fp-size" value="'+esc(r.size)+'" maxlength="3">';
+ else if(r.type==='數字')sz='<select class="fp-size">'+NUMSIZE.map(o=>'<option '+(o===r.size?'selected':'')+'>'+o+'</option>').join('')+'</select>';
+ else sz='<span class="ro">'+esc(r.size||'')+'</span>';
+ const P=[['欄位大小',sz],['格式','<span class="ro"></span>'],['標題','<span class="ro"></span>'],['預設值','<span class="ro"></span>'],
+  ['驗證規則','<span class="ro"></span>'],['必填欄位','<span class="ro">否</span>'],['索引','<span class="ro">'+(st.pk===st.sel?'是 (不可重複)':'否')+'</span>']];
+ return '<div class="props"><div class="ttl">欄位屬性 — 一般 | 查閱 &nbsp;('+(r.name?esc(r.name):'未選取欄位')+')</div><table>'+
+  P.map(p=>'<tr><td class="k">'+p[0]+'</td><td>'+p[1]+'</td></tr>').join('')+'</table>'+
+  '<div style="font-size:11.5px;color:#666;margin-top:5px">提示:先按左邊列選取器選取欄位,再修改「欄位大小」。</div></div>';
+}
+function dsHTML(){
+ const fs=st.savedFields;
+ let h='<div style="padding:6px"><table class="ds"><thead><tr><th style="width:24px"></th>'+
+   fs.map(f=>'<th>'+esc(f.name)+'</th>').join('')+'</tr></thead><tbody>';
+ st.records.forEach((rec,i)=>{
+  h+='<tr><td class="rh" data-act="drec" data-arg="'+i+'">'+(st.selRec===i?'▶':'')+'</td>'+
+   fs.map(f=>'<td><input class="ds-cell'+(f.type==='數字'?' num':'')+'" data-r="'+i+'" data-f="'+esc(f.name)+'" value="'+esc(rec[f.name]||'')+'"></td>').join('')+'</tr>';
+ });
+ h+='<tr><td class="rh">✳</td>'+fs.map(f=>'<td><input class="ds-new'+(f.type==='數字'?' num':'')+'" data-f="'+esc(f.name)+'" value=""></td>').join('')+'</tr>';
+ h+='</tbody></table><div style="font-size:12px;color:#666;margin-top:6px">記錄:共 '+st.records.length+' 筆 &nbsp;|&nbsp; 本練習要求在<b>表單</b>中輸入資料。</div></div>';
+ return h;
+}
+function formHTML(){
+ const total=st.records.length;
+ const rec=st.newRec?null:(st.records[st.curRec]||{});
+ let h='<div id="fv"><div class="fbox"><div class="fhd">'+esc(st.formTitle)+'</div>';
+ st.formFields.forEach(n=>{
+  const f=fdef(n)||{type:'文字'};
+  const v=rec?(rec[n]||''):'';
+  h+='<div class="frow"><div class="lb">'+esc(n)+'</div><input class="'+(st.newRec?'fv-new':'fv-cell')+(f.type==='數字'?' num':'')+'" data-f="'+esc(n)+'" value="'+esc(v)+'"></div>';
+ });
+ h+='<div class="fnav">'+
+  '<button data-act="fnav" data-arg="first">|◀</button><button data-act="fnav" data-arg="prev">◀</button>'+
+  '<span class="pos">'+(st.newRec?'(新增)':(st.curRec+1))+'</span>'+
+  '<button data-act="fnav" data-arg="next">▶</button><button data-act="fnav" data-arg="last">▶|</button>'+
+  '<button data-act="fnav" data-arg="new">▶✳ 新(空白)記錄</button>'+
+  '<span style="margin-left:8px;color:#555">共 '+total+' 筆記錄</span></div>';
+ h+='</div><div style="font-size:12px;color:#666;margin-top:8px;max-width:520px">單欄式表單一次只顯示一筆記錄。修改後移到另一筆記錄,Access 便會自動儲存。</div></div>';
+ return h;
+}
+function renderNav(){
+ let h='<div class="h">所有 Access 物件 ⌄</div><div class="g">資料表</div>'+
+  '<div class="it'+(st.navSel==='table'?' on':'')+'" data-act="navtable">▦ '+esc(EX.tableName)+'</div>'+
+  '<div class="g">查詢</div><div class="none">(無)</div><div class="g">表單</div>'+
+  (st.formCreated?'<div class="it'+(st.navSel==='form'?' on':'')+'" data-act="navform">🗒️ '+esc(st.formTitle)+'</div>':'<div class="none">(無)</div>')+
+  '<div class="g">報表</div><div class="none">(無)</div>';
+ $('#nav').innerHTML=h;
+}
+function renderStatus(){
+ $('#tt').textContent=EX.tableName+' : 資料庫- C:\\Users\\Student\\Documents\\'+EX.dbFile+'  (Access 2007-2016 檔案格式) - Access';
+ let v='';
+ if(st.view==='design'||st.view==='datasheet'){
+  v='<span class="vb'+(st.view==='datasheet'?' on':'')+'" data-act="view" data-arg="datasheet" title="資料工作表檢視">▦</span>'+
+    '<span class="vb'+(st.view==='design'?' on':'')+'" data-act="view" data-arg="design" title="設計檢視">📐</span>';
+ } else if(st.view==='form'){ v='<span class="vb on" title="表單檢視">🗒️</span>'; }
+ $('#viewbtns').innerHTML=v;
+}
+function render(){renderRibbon();renderDoc();renderNav();renderStatus();renderGuide();}
+
+/* ============================================================
+   7. 操作邏輯
+   ============================================================ */
+function openDesign(viaNav){
+ st.view='design';st.tab='design';st.enteredDesign=true;if(viaNav)st.viaNavDesign=true;
+ log('開啟資料表設計檢視'+(viaNav?'(導覽窗格右鍵)':''));
+ setStatus('設計檢視:在空白列輸入新欄位名稱及資料類型。');render();
+}
+function openDatasheet(){
+ st.view='datasheet';st.tab='home';log('開啟資料工作表檢視');
+ setStatus('資料工作表檢視。');render();
+}
+function openForm(){
+ if(!st.formCreated){wrongClick('尚未建立表單,請先用「建立 → 表單精靈」建立表單。');return;}
+ st.view='form';st.tab='home';st.newRec=false;if(st.curRec>=st.records.length)st.curRec=0;
+ log('開啟表單「'+st.formTitle+'」');setStatus('表單檢視:用底部導覽按鈕移動記錄。');render();
+}
+function saveTable(after){
+ const rows=dRows();
+ if(!rows.length){msgbox('必須至少定義一個欄位。');return;}
+ const names=rows.map(r=>r.name.trim());
+ const dup=names.find((n,i)=>names.indexOf(n)!==i);
+ if(dup){msgbox('資料表中已有名為「'+esc(dup)+'」的欄位。欄位名稱不可重複。');return;}
+ const oldNames=st.savedFields.map(f=>f.name);
+ const ns=rows.map(r=>({name:r.name.trim(),type:r.type||'文字',size:r.size||(r.type==='數字'?'長整數':'255')}));
+ st.records.forEach(rec=>{
+  rows.forEach(r=>{const nn=r.name.trim();
+   if(r.orig&&r.orig!==nn&&Object.prototype.hasOwnProperty.call(rec,r.orig)){rec[nn]=rec[r.orig];delete rec[r.orig];}
+   if(rec[nn]===undefined)rec[nn]='';});
+  oldNames.forEach(o=>{if(!ns.some(f=>f.name===o)&&!rows.some(r=>r.orig===o))delete rec[o];});
+ });
+ rows.forEach(r=>r.orig=r.name.trim());
+ st.savedFields=ns;st.saveCount++;st.tableDirty=false;
+ log('儲存資料表:欄位 = '+ns.map(f=>f.name).join('、'));
+ setStatus('已儲存資料表「'+EX.tableName+'」的變更。');
+ render();
+ if(after)after(); else msgbox('已儲存資料表「'+esc(EX.tableName)+'」的設計變更。');
+}
+function toggleView(target){
+ if(st.view==='form'){msgbox('本練習不需要修改表單的設計。請在表單檢視中輸入資料。');return;}
+ if(st.view==='none'){wrongClick('請先在導覽窗格開啟資料表「'+EX.tableName+'」。');return;}
+ const want=target||(st.view==='design'?'datasheet':'design');
+ if(want===st.view)return;
+ if(want==='design'){openDesign(false);return;}
+ if(st.tableDirty){
+  dlg('Microsoft Access','您必須先儲存資料表。<br><br>是否要立即儲存資料表?',
+   [{label:'是(Y)',fn:()=>saveTable(openDatasheet)},{label:'否(N)',fn:()=>{}}]);
+  return;
+ }
+ openDatasheet();
+}
+function btn(id){
+ if(id==='x'){wrongClick('本練習不需要使用這個按鈕,請按右方指示操作。');return;}
+ if(id==='tbldesign'){wrongClick('這會建立一個「新的」資料表。本練習要修改現有的資料表:請在導覽窗格用滑鼠右鍵按「'+EX.tableName+'」→ 設計檢視。');return;}
+ if(id==='formauto'){wrongClick('「表單」按鈕會直接自動產生表單,不能選版面配置。本練習要求使用「表單精靈」。');return;}
+ if(id==='wiz'){startWizard();return;}
+ if(id==='view'){toggleView();return;}
+ if(id==='qsave'){
+  if(st.view==='none'){wrongClick('尚未開啟任何物件。');return;}
+  if(st.view==='form'){msgbox('表單已儲存。記錄的變更會自動儲存。');return;}
+  saveTable();return;
+ }
+ if(id==='pk'){
+  if(st.view!=='design'){wrongClick('必須在設計檢視才可以設定主索引鍵。');return;}
+  const r=st.rows[st.sel];
+  if(!r||!r.name.trim()){wrongClick('請先選取一個已命名的欄位。');return;}
+  if(st.pk===st.sel){st.pk=null;log('取消主索引鍵');}
+  else{st.pk=st.sel;log('設定主索引鍵:'+r.name.trim());}
+  st.tableDirty=true;render();return;
+ }
+ if(id==='insrow'){if(st.view!=='design')return;st.rows.splice(st.sel,0,{name:'',type:'',size:'',desc:'',orig:''});
+  if(st.pk!=null&&st.pk>=st.sel)st.pk++;st.tableDirty=true;render();return;}
+ if(id==='delrow'){if(st.view!=='design')return;
+  dlg('Microsoft Access','是否永久刪除選取的欄位及其所有資料?',[{label:'是(Y)',fn:()=>{
+   st.rows.splice(st.sel,1);if(st.pk===st.sel)st.pk=null;else if(st.pk!=null&&st.pk>st.sel)st.pk--;
+   if(st.sel>=st.rows.length)st.sel=st.rows.length-1;st.tableDirty=true;pad();render();}},{label:'否(N)',fn:()=>{}}]);
+  return;}
+ if(id==='recnew'){
+  if(st.view==='form'){fnav('new');return;}
+  if(st.view==='datasheet'){const el=document.querySelector('.ds-new');if(el)el.focus();return;}
+  wrongClick('請先開啟表單或資料工作表檢視。');return;}
+ if(id==='recdel'){
+  if(st.view==='form'){
+   dlg('Microsoft Access','您即將刪除目前顯示的 1 筆記錄。<br>此操作無法復原,確定嗎?',
+    [{label:'是(Y)',fn:()=>{st.records.splice(st.curRec,1);if(st.curRec>=st.records.length)st.curRec=Math.max(0,st.records.length-1);log('在表單刪除一筆記錄');render();}},{label:'否(N)',fn:()=>{}}]);
+   return;}
+  if(st.view==='datasheet'){
+   if(st.selRec<0){msgbox('請先按記錄左邊的列選取器,選取要刪除的記錄。');return;}
+   dlg('Microsoft Access','您即將刪除 1 筆記錄,無法復原。確定嗎?',
+    [{label:'是(Y)',fn:()=>{st.records.splice(st.selRec,1);st.selRec=-1;log('刪除一筆記錄');render();}},{label:'否(N)',fn:()=>{}}]);
+   return;}
+  wrongClick('請先開啟表單或資料工作表檢視。');return;}
+}
+function coerce(name,v){
+ const f=fdef(name);if(!f)return v;
+ if(f.type==='數字'){const o=v;v=v.replace(/[^0-9\-]/g,'');if(o!==v)setStatus('「'+name+'」的資料類型是「數字」,只可輸入數字。');}
+ if(f.type==='文字'){const n=parseInt(f.size,10);
+  if(!isNaN(n)&&n>0&&v.length>n){v=v.slice(0,n);setStatus('「'+name+'」的欄位大小為 '+n+',最多只可輸入 '+n+' 個字元。');}}
+ return v;
+}
+function fnav(a){
+ if(st.view!=='form')return;
+ const n=st.records.length;
+ if(a==='first'){st.newRec=false;st.curRec=0;}
+ if(a==='prev'){if(st.newRec){st.newRec=false;st.curRec=n-1;}else st.curRec=Math.max(0,st.curRec-1);}
+ if(a==='next'){if(!st.newRec){if(st.curRec<n-1)st.curRec++;else st.newRec=true;}}
+ if(a==='last'){st.newRec=false;st.curRec=Math.max(0,n-1);}
+ if(a==='new'){st.newRec=true;}
+ renderDoc();renderGuide();
+ const el=document.querySelector('#fv input');if(el)el.focus();
+}
+
+/* ============================================================
+   8. 表單精靈
+   ============================================================ */
+const wiz={step:1,avail:[],sel:[],layout:'單欄式',title:EX.tableName};
+function startWizard(){
+ if(st.tableDirty){
+  dlg('Microsoft Access','資料表「'+esc(EX.tableName)+'」有<b>未儲存</b>的設計變更。<br>未儲存的新欄位<b>不會</b>出現在表單精靈中。<br><br>是否先儲存資料表?',
+   [{label:'是,先儲存',fn:()=>saveTable(()=>{openWiz();})},{label:'否,繼續',fn:openWiz}]);
+  return;
+ }
+ openWiz();
+}
+function openWiz(){
+ wiz.step=1;wiz.avail=st.savedFields.map(f=>f.name);wiz.sel=[];wiz.layout='單欄式';wiz.title=EX.tableName;
+ st.wizOpened=true;log('開啟表單精靈');wizRender();
+}
+function wizRender(){
+ const L=$('#layer');let body='',title='';
+ if(wiz.step===1){
+  title='表單精靈 — 您要在表單上使用哪些欄位?';
+  body='<div style="margin-bottom:6px">資料表/查詢:<b>資料表:'+esc(EX.tableName)+'</b></div>'+
+   '<div class="wizrow"><div style="flex:1"><div style="font-size:12px;color:#555">可用的欄位:</div>'+
+   '<select class="lst" id="wA" multiple>'+wiz.avail.map(n=>'<option>'+esc(n)+'</option>').join('')+'</select></div>'+
+   '<div class="mvb"><button data-act="wmv" data-arg="add">&gt;</button><button data-act="wmv" data-arg="addall">&gt;&gt;</button>'+
+   '<button data-act="wmv" data-arg="rem">&lt;</button><button data-act="wmv" data-arg="remall">&lt;&lt;</button></div>'+
+   '<div style="flex:1"><div style="font-size:12px;color:#555">表單上的欄位:</div>'+
+   '<select class="lst" id="wS" multiple>'+wiz.sel.map(n=>'<option>'+esc(n)+'</option>').join('')+'</select></div></div>';
+ } else if(wiz.step===2){
+  title='表單精靈 — 您要使用何種版面配置?';
+  body='<div class="wizrow"><div class="lay" style="width:190px">'+
+   LAYOUTS.map(l=>'<label><input type="radio" name="wl" value="'+l+'" '+(wiz.layout===l?'checked':'')+'> '+l+'</label>').join('')+
+   '</div><div class="prev">'+layoutPreview(wiz.layout)+'</div></div>';
+ } else {
+  title='表單精靈 — 您要使用什麼標題?';
+  body='<div>請輸入表單的標題(這也會成為表單的名稱):</div>'+
+   '<div style="margin:8px 0"><input type="text" id="wT" value="'+esc(wiz.title)+'"></div>'+
+   '<div style="margin-top:10px;font-size:13px">這是精靈建立表單所需的全部資訊。<br><br>'+
+   '<label><input type="radio" name="wo" checked> 開啟表單以檢視或輸入資訊</label>'+
+   '<label><input type="radio" name="wo" disabled> 修改表單設計</label></div>';
+ }
+ const bs='<button data-w="cancel">取消</button><button data-w="back" '+(wiz.step===1?'disabled':'')+'>&lt; 上一步</button>'+
+  '<button data-w="next" '+(wiz.step===3?'disabled':'')+'>下一步 &gt;</button><button data-w="fin" '+(wiz.step===3?'':'')+'>完成</button>';
+ L.innerHTML='<div class="dlg"><div class="wizhead">'+esc(title)+'</div><div class="wizb">'+body+'</div><div class="df">'+bs+'</div></div>';
+ L.style.display='flex';
+ L.querySelectorAll('.df button').forEach(b=>b.onclick=()=>wizBtn(b.dataset.w));
+ if(wiz.step===2)L.querySelectorAll('input[name=wl]').forEach(r=>r.onchange=()=>{wiz.layout=r.value;log('表單精靈:選擇版面配置「'+r.value+'」');wizRender();});
+}
+function layoutPreview(l){
+ if(l==='單欄式')return '<div style="font-size:11px;color:#666;margin-bottom:4px">單欄式(一次一筆記錄)</div>'+
+  [1,2,3,4].map(()=>'<div style="display:flex;gap:6px;align-items:center;margin:5px 0"><i style="display:block;width:52px;height:9px;background:#e3e9ef;border:1px solid #ccd4dc"></i><i style="display:block;flex:1;height:9px;background:#cfd8e2;border:1px solid #b6c1cd"></i></div>').join('');
+ if(l==='表格式')return '<div style="font-size:11px;color:#666;margin-bottom:4px">表格式(多筆記錄)</div>'+
+  [1,2,3,4].map(()=>'<div class="pv-r"><i></i><i></i><i></i><i></i></div>').join('');
+ if(l==='資料工作表')return '<div style="font-size:11px;color:#666;margin-bottom:4px">資料工作表(像 Excel 表格)</div>'+
+  [1,2,3,4,5].map(()=>'<div class="pv-r"><i></i><i></i><i></i><i></i><i></i></div>').join('');
+ return '<div style="font-size:11px;color:#666;margin-bottom:4px">對齊</div><div class="pv-r"><i></i><i></i></div><div class="pv-l"></div><div class="pv-r"><i></i><i></i></div>';
+}
+function wizMove(a){
+ const A=$('#wA'),S=$('#wS');
+ if(a==='add'){const v=[...A.selectedOptions].map(o=>o.value);if(!v.length){msgbox('請先在左邊選取要加入的欄位,或按 &gt;&gt; 加入全部欄位。');return;}
+  wiz.sel=wiz.sel.concat(v);wiz.avail=wiz.avail.filter(n=>!v.includes(n));log('表單精靈:加入欄位 '+v.join('、'));}
+ if(a==='addall'){wiz.sel=wiz.sel.concat(wiz.avail);wiz.avail=[];log('表單精靈:加入全部欄位');}
+ if(a==='rem'){const v=[...S.selectedOptions].map(o=>o.value);wiz.sel=wiz.sel.filter(n=>!v.includes(n));
+  wiz.avail=st.savedFields.map(f=>f.name).filter(n=>!wiz.sel.includes(n));}
+ if(a==='remall'){wiz.sel=[];wiz.avail=st.savedFields.map(f=>f.name);}
+ wizRender();
+}
+function wizBtn(w){
+ if(w==='cancel'){$('#layer').style.display='none';log('取消表單精靈');return;}
+ if(w==='back'){if(wiz.step===3)wiz.title=($('#wT')||{value:wiz.title}).value;wiz.step--;wizRender();return;}
+ if(w==='next'){
+  if(wiz.step===1){if(!wiz.sel.length){msgbox('您必須至少選取一個欄位。');return;}}
+  wiz.step++;wizRender();return;}
+ if(w==='fin'){
+  if(!wiz.sel.length){msgbox('您必須至少選取一個欄位。');return;}
+  if(wiz.step===3)wiz.title=($('#wT')||{value:wiz.title}).value;
+  const t=wiz.title.trim();
+  if(!t){msgbox('請輸入表單標題。');return;}
+  const create=()=>{
+   $('#layer').style.display='none';
+   st.formCreated=true;st.formFields=wiz.sel.slice();st.formLayout=wiz.layout;st.formTitle=t;
+   st.curRec=0;st.newRec=false;
+   log('表單精靈完成:標題「'+t+'」,版面配置「'+wiz.layout+'」,欄位 '+wiz.sel.join('、'));
+   setStatus('已建立表單「'+t+'」。');
+   openForm();
+  };
+  if(st.formCreated){
+   dlg('Microsoft Access','已經有一個名為「'+esc(t)+'」的表單存在。<br><br>是否要取代現有的表單?',
+    [{label:'是(Y)',fn:create},{label:'否(N)',fn:()=>{}}]);
+   return;
+  }
+  create();return;
+ }
+}
+
+/* ============================================================
+   9. 事件
+   ============================================================ */
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-act]');if(!t)return;
+ const a=t.dataset.act,g=t.dataset.arg;
+ if(a==='tab'){if(g==='file'){msgbox('本練習不需使用「檔案」功能。');return;}
+  st.tab=g;st.visited[g]=true;log('切換索引標籤:'+RIBBON[g].label);render();return;}
+ if(a==='btn'){btn(g);return;}
+ if(a==='wmv'){wizMove(g);return;}
+ if(a==='drow'){st.sel=+g;render();return;}
+ if(a==='drec'){st.selRec=+g;render();return;}
+ if(a==='view'){toggleView(g);return;}
+ if(a==='fnav'){fnav(g);return;}
+ if(a==='navtable'){st.navSel='table';
+  if(e.detail>=2){if(st.tableDirty&&st.view==='design'){toggleView('datasheet');}else openDatasheet();}
+  else{renderNav();setStatus('已選取資料表「'+EX.tableName+'」。按滑鼠右鍵可選擇「設計檢視」。');}
+  return;}
+ if(a==='navform'){st.navSel='form';if(e.detail>=2)openForm();else{renderNav();setStatus('已選取表單「'+st.formTitle+'」,連按兩下可開啟。');}return;}
+ if(a==='hint'){const i=+g;if(!st.hintShown[i]){st.hintShown[i]=1;st.hints++;log('使用提示(步驟 '+(i+1)+')');}renderGuide();return;}
+ if(a==='finish'){finish();return;}
+ if(a==='reset'){dlg('確認','重新開始會清除所有已做的操作及計分,確定嗎?',[{label:'是',fn:()=>location.reload()},{label:'否',fn:()=>{}}]);return;}
+});
+document.addEventListener('contextmenu',e=>{
+ const it=e.target.closest('[data-act="navtable"],[data-act="navform"]');
+ if(!it)return;
+ e.preventDefault();
+ if(it.dataset.act==='navtable'){
+  st.navSel='table';renderNav();
+  showCtx(e.clientX,e.clientY,[
+   {label:'開啟(O)',fn:openDatasheet},
+   {label:'設計檢視(D)',fn:()=>openDesign(true)},
+   {sep:true},{label:'匯入(M)',fn:()=>wrongClick('本練習不需使用「匯入」。')},
+   {label:'重新命名(M)',fn:()=>wrongClick('請勿更改資料表名稱。')}
+  ]);
+ } else {
+  st.navSel='form';renderNav();
+  showCtx(e.clientX,e.clientY,[
+   {label:'開啟(O)',fn:openForm},
+   {label:'版面配置檢視(Y)',fn:()=>msgbox('本練習不需要修改表單版面。')},
+   {label:'設計檢視(D)',fn:()=>msgbox('本練習不需要修改表單設計。')}
+  ]);
+ }
+});
+document.addEventListener('focusin',e=>{
+ const el=e.target;
+ if(el.classList.contains('dg-name')||el.classList.contains('dg-desc')){
+  const r=+el.dataset.r;
+  if(st.sel!==r){st.sel=r;
+   $$('table.dg tbody tr').forEach((tr,i)=>tr.classList.toggle('sel',i===r));
+   $$('table.dg td.rh').forEach((td,i)=>{td.textContent=(st.pk===i?'🔑':(st.sel===i?'▶':''));});
+   const p=$('.props');if(p)p.outerHTML=propsHTML();}
+ }
+ if(el.classList.contains('ds-cell'))st.selRec=+el.dataset.r;
+});
+document.addEventListener('input',e=>{
+ const el=e.target;
+ if(el.classList.contains('dg-name')){st.rows[+el.dataset.r].name=el.value;st.tableDirty=true;pad();renderGuide();return;}
+ if(el.classList.contains('dg-desc')){st.rows[+el.dataset.r].desc=el.value;st.tableDirty=true;return;}
+ if(el.classList.contains('fp-size')){st.rows[st.sel].size=el.value;st.tableDirty=true;renderGuide();return;}
+ if(el.classList.contains('ds-cell')){
+  const n=el.dataset.f,v=coerce(n,el.value);if(v!==el.value)el.value=v;
+  st.records[+el.dataset.r][n]=v;st.dsEdits++;renderGuide();return;}
+ if(el.classList.contains('ds-new')){
+  const n=el.dataset.f,v=coerce(n,el.value);
+  const rec={};st.savedFields.forEach(f=>rec[f.name]='');rec[n]=v;st.records.push(rec);st.dsEdits++;
+  log('在資料工作表新增記錄 #'+st.records.length);renderDoc();renderGuide();
+  const t=document.querySelector('.ds-cell[data-r="'+(st.records.length-1)+'"][data-f="'+n+'"]');
+  if(t){t.focus();t.setSelectionRange(t.value.length,t.value.length);}return;}
+ if(el.classList.contains('fv-cell')){
+  const n=el.dataset.f,v=coerce(n,el.value);if(v!==el.value)el.value=v;
+  st.records[st.curRec][n]=v;st.formEdits++;renderGuide();return;}
+ if(el.classList.contains('fv-new')){
+  const n=el.dataset.f,v=coerce(n,el.value);
+  const rec={};st.savedFields.forEach(f=>rec[f.name]='');rec[n]=v;st.records.push(rec);
+  st.curRec=st.records.length-1;st.newRec=false;st.formEdits++;
+  log('在表單新增記錄 #'+st.records.length);renderDoc();renderGuide();
+  const t=document.querySelector('.fv-cell[data-f="'+n+'"]');
+  if(t){t.focus();t.setSelectionRange(t.value.length,t.value.length);}return;}
+});
+document.addEventListener('change',e=>{
+ const el=e.target;
+ if(el.classList.contains('dg-type')){
+  const r=+el.dataset.r;st.sel=r;st.rows[r].type=el.value;
+  st.rows[r].size=el.value==='文字'?'255':(el.value==='數字'?'長整數':(el.value==='自動編號'?'長整數':''));
+  st.tableDirty=true;log('設定「'+(st.rows[r].name||'(未命名)')+'」資料類型:'+el.value);render();return;}
+ if(el.classList.contains('fp-size')){st.rows[st.sel].size=el.value;st.tableDirty=true;
+  log('設定「'+(st.rows[st.sel].name||'')+'」欄位大小:'+el.value);renderGuide();return;}
+});
+document.addEventListener('keydown',e=>{
+ if(e.ctrlKey&&(e.key==='s'||e.key==='S')){e.preventDefault();btn('qsave');return;}
+ if(e.ctrlKey&&e.altKey&&(e.key==='t'||e.key==='T')){teacherTool();return;}
+ if(e.key==='Enter'){
+  const el=document.activeElement;if(!el)return;
+  if(el.classList.contains('fv-cell')||el.classList.contains('fv-new')){
+   e.preventDefault();
+   const ins=[...document.querySelectorAll('#fv input')],i=ins.indexOf(el);
+   if(i>=0&&i<ins.length-1)ins[i+1].focus(); else fnav('next');
+   return;}
+  if(el.classList.contains('ds-cell')||el.classList.contains('ds-new')){
+   e.preventDefault();
+   const ins=[...document.querySelectorAll('table.ds input')],i=ins.indexOf(el);
+   if(i>=0&&i<ins.length-1)ins[i+1].focus();
+   return;}
+ }
+});
+
+/* ============================================================
+   10. 步驟指引
+   ============================================================ */
+function rowOf(n){return dRows().find(r=>r.name.trim()===n);}
+function newFieldOk(e){const r=rowOf(e.name);return !!r&&r.type===e.type&&String(r.size).trim()===e.size;}
+function savedOk(){return EX.newFields.every(e=>{const f=fdef(e.name);return f&&f.type===e.type&&String(f.size).trim()===e.size;});}
+function wizOk(){return st.formCreated&&EX.allFieldNames.every(n=>st.formFields.includes(n))&&st.formLayout===EX.layout&&st.formTitle.trim()===EX.formName;}
+function cmp(a,b){const x=String(a==null?'':a).trim(),y=String(b).trim();return x===y;}
+function recsOk(){return EX.addData.every((p,i)=>{const r=st.records[i];return r&&cmp(r['班別'],p[0])&&cmp(r['班號'],p[1]);});}
+function rec7Ok(){const r=st.records[6];if(!r)return false;return EX.allFieldNames.every((n,i)=>cmp(r[n],EX.rec7[i]));}
+const STEPS=[
+ {t:'開啟資料表「'+EX.tableName+'」的設計檢視',d:'在左邊導覽窗格用<b>滑鼠右鍵</b>按「'+EX.tableName+'」,選「設計檢視」。',
+  h:'也可以先連按兩下開啟資料表,再按狀態列右下角的 📐 圖示切換到設計檢視。',f:()=>st.enteredDesign},
+ {t:'加入欄位「班別」:文字,欄位大小 2',d:'在第 5 列空白處輸入「班別」,資料類型選「文字」,再在下方「欄位大小」輸入 2。',
+  h:'記得先按該列左邊的列選取器,下方「欄位屬性」才會顯示這個欄位的欄位大小。',f:()=>newFieldOk(EX.newFields[0])},
+ {t:'加入欄位「班號」:文字,欄位大小 2',d:'在第 6 列輸入「班號」,資料類型「文字」,欄位大小 2。',
+  h:'思考題:班號「01」如果用「數字」類型,前面的 0 會消失變成 1,所以用「文字」較合適。',f:()=>newFieldOk(EX.newFields[1])},
+ {t:'儲存資料表',d:'按 Ctrl+S 或左上角 💾。資料表已有名稱,所以不會再問你名稱。',
+  h:'一定要先儲存,新欄位才會出現在表單精靈的欄位清單中。',f:savedOk},
+ {t:'按「建立 → 表單精靈」',d:'切換到「建立」索引標籤,在「表單」群組按「表單精靈」。',
+  h:'不要按「表單」(自動產生),要按有 🧙‍♂️ 的「表單精靈」,才可以自己選版面配置和標題。',f:()=>st.wizOpened},
+ {t:'精靈:加入所有欄位 → 單欄式 → 標題「'+EX.formName+'」→ 完成',
+  d:'第 1 步按 <b>&gt;&gt;</b> 把 6 個欄位全部加入;第 2 步選「<b>單欄式</b>」;第 3 步標題輸入「'+EX.formName+'」,按「完成」。',
+  h:'&gt; 是加入選取的一個欄位,&gt;&gt; 是加入全部欄位。標題預設已是資料表名稱,確認一下即可。',f:wizOk},
+ {t:'在表單中為原有 6 筆記錄輸入班別及班號',d:'在表單填好班別、班號後,按底部的 ▶ 移到下一筆記錄(Access 會自動儲存)。',
+  h:'導覽列:|◀ 第一筆、◀ 上一筆、▶ 下一筆、▶| 最後一筆。輸入次序見右下方表格。',f:recsOk},
+ {t:'新增第 7 筆記錄:7 / 李快樂 / 164 / 56 / 3A / 22',d:'按導覽列的「▶✳ 新(空白)記錄」,然後逐格輸入。',
+  h:'也可以按「常用 → ➕ 新增」。輸入後記錄總數應為 7 筆。',f:rec7Ok},
+ {t:'按「完成練習,產生報告」',d:'檢查資料無誤後,按右上角綠色按鈕,下載報告並上傳給老師。',h:'',f:()=>false}
+];
+function renderGuide(){
+ const done=STEPS.map(s=>!!s.f());
+ let cur=done.findIndex(d=>!d);if(cur<0)cur=STEPS.length-1;
+ let h='<h3>📋 操作指引(共 '+STEPS.length+' 步,滿分 '+fmtM(fullMark())+' 分)</h3>';
+ STEPS.forEach((s,i)=>{
+  h+='<div class="step '+(done[i]?'ok ':'')+(i===cur?'cur':'')+'"><div class="n">'+(done[i]?'✔':(i===cur?'▶':'○'))+' 步驟 '+(i+1)+':'+s.t+'</div>'+
+   '<div class="d">'+s.d+(s.h?('<div class="hb"><button data-act="hint" data-arg="'+i+'" style="border:0;background:none;color:#a4373a;font-size:12px;padding:0">💡 顯示提示(扣 '+fmtM(EX.penalty.hint)+' 分)</button></div>'):'')+
+   (s.h&&st.hintShown[i]?'<div class="hintbox" style="display:block">'+s.h+'</div>':'')+'</div></div>';
+ });
+ h+='<div class="gsec"><b>📑 要為 6 筆記錄補入的資料</b><table id="reftab"><tr><th>記錄</th><th>姓名</th><th>班別</th><th>班號</th></tr>'+
+  EX.addData.map((p,i)=>'<tr><td>第 '+(i+1)+' 筆</td><td>'+esc(EX.baseData[i][1])+'</td><td>'+esc(p[0])+'</td><td>'+esc(p[1])+'</td></tr>').join('')+'</table>'+
+  '<b style="display:block;margin-top:8px">➕ 要新增的第 7 筆記錄</b><table id="reftab2"><tr>'+
+  EX.allFieldNames.map(n=>'<th>'+esc(n)+'</th>').join('')+'</tr><tr>'+EX.rec7.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr></table></div>';
+ h+='<div class="gsec" style="font-size:12.5px"><b>目前進度:</b>'+done.filter(Boolean).length+' / '+(STEPS.length-1)+
+  ' 步 &nbsp;|&nbsp; 記錄數:'+st.records.length+' &nbsp;|&nbsp; 提示:'+st.hints+' &nbsp;|&nbsp; 誤操作:'+st.errs+'</div>';
+ h+='<div class="gsec"><b>🖥 操作紀錄</b><div id="log">'+st.log.slice(-40).map(esc).reverse().join('<br>')+'</div></div>';
+ $('#guide').innerHTML=h;
+}
+
+/* ============================================================
+   11. 評分與報告
+   ============================================================ */
+function bandOf(p){return p>=85?'優異':p>=70?'良好':p>=55?'尚可':p>=40?'及格':'需重做';}
+function grade(){
+ const M=EX.marks,items=[];
+ items.push({l:'開啟資料表的設計檢視',y:st.enteredDesign?(st.viaNavDesign?'導覽窗格右鍵 → 設計檢視':'以「檢視」按鈕切換'):'未進入設計檢視',
+  c:'設計檢視',g:st.enteredDesign?M.design:0,f:M.design});
+ EX.newFields.forEach(e=>{
+  const r=rowOf(e.name);
+  items.push({l:'新增欄位「'+e.name+'」',y:r?'已加入':'找不到此欄位',c:e.name,g:r?M.fname:0,f:M.fname});
+  items.push({l:'「'+e.name+'」資料類型',y:r?(r.type||'(未選)'):'—',c:e.type,g:r&&r.type===e.type?M.ftype:0,f:M.ftype});
+  items.push({l:'「'+e.name+'」欄位大小',y:r?String(r.size||'(空白)'):'—',c:e.size,g:r&&String(r.size).trim()===e.size?M.fsize:0,f:M.fsize});
+ });
+ items.push({l:'儲存資料表的結構變更',y:st.saveCount===0?'未儲存':(savedOk()?'已儲存(含兩個新欄位)':'已儲存,但新欄位設定不正確/未儲存'),
+  c:'Ctrl+S 儲存',g:st.saveCount===0?0:(savedOk()?M.save:M.save/2),f:M.save});
+ const need=EX.allFieldNames,got=need.filter(n=>st.formFields.includes(n)).length;
+ items.push({l:'表單精靈:加入所有欄位',y:st.formCreated?(st.formFields.join('、')||'(無)'):'未建立表單',
+  c:need.join('、'),g:st.formCreated?+(M.wizFields*got/need.length).toFixed(2):0,f:M.wizFields});
+ items.push({l:'表單版面配置',y:st.formLayout||'—',c:EX.layout,g:st.formLayout===EX.layout?M.wizLayout:0,f:M.wizLayout});
+ items.push({l:'表單標題 / 名稱',y:st.formTitle||'—',c:EX.formName,g:st.formTitle.trim()===EX.formName?M.wizTitle:0,f:M.wizTitle});
+ items.push({l:'以表單精靈成功建立表單',y:st.formCreated?'已建立':'未建立',c:'表單精靈',g:st.formCreated?M.wizDone:0,f:M.wizDone});
+ EX.addData.forEach((p,i)=>{
+  const r=st.records[i]||{};let g=0;
+  if(cmp(r['班別'],p[0]))g+=M.rec/2;
+  if(cmp(r['班號'],p[1]))g+=M.rec/2;
+  items.push({l:'第 '+(i+1)+' 筆('+EX.baseData[i][1]+')班別 / 班號',
+   y:(r['班別']||'—')+' / '+(r['班號']||'—'),c:p[0]+' / '+p[1],g:+g.toFixed(2),f:M.rec});
+ });
+ const r7=st.records[6];let g7=0;const per=M.rec7/EX.allFieldNames.length;
+ const y7=EX.allFieldNames.map((n,i)=>{const v=r7?(r7[n]||''):'';if(cmp(v,EX.rec7[i]))g7+=per;return v===''?'—':v;});
+ items.push({l:'第 7 筆新記錄(全部欄位)',y:y7.join(' / '),c:EX.rec7.join(' / '),g:+g7.toFixed(2),f:M.rec7});
+ const full=+items.reduce((a,b)=>a+b.f,0).toFixed(2),raw=+items.reduce((a,b)=>a+b.g,0).toFixed(2);
+ const dh=Math.min(st.hints*EX.penalty.hint,EX.penalty.hintMax);
+ const de=Math.min(st.errs*EX.penalty.err,EX.penalty.errMax);
+ const notes=[];
+ if(dRows().length>6)notes.push('資料表共有 '+dRows().length+' 個欄位('+dRows().map(r=>r.name).join('、')+'),應只有 6 個。');
+ if(st.tableDirty)notes.push('練習結束時,設計檢視仍有未儲存的變更。');
+ if(st.formEdits===0&&st.dsEdits>0)notes.push('資料是在「資料工作表」而不是「表單」中輸入的,未按練習要求使用表單。');
+ else if(st.dsEdits>0)notes.push('部分資料曾在資料工作表中輸入/修改('+st.dsEdits+' 次)。');
+ if(st.records.length>7)notes.push('記錄總數為 '+st.records.length+' 筆,多於要求的 7 筆(可能誤加了空白記錄)。');
+ if(st.records.length<7)notes.push('記錄總數只有 '+st.records.length+' 筆,未完成第 7 筆記錄。');
+ if(st.formLayout&&st.formLayout!==EX.layout)notes.push('表單版面配置選了「'+st.formLayout+'」,練習要求「單欄式」。');
+ const final=Math.max(0,+(raw-dh-de).toFixed(2));
+ return {items,full,raw,dh,de,final,pct:full?Math.round(final/full*100):0,notes};
+}
+function fmtDur(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+' 分 '+String(s%60).padStart(2,'0')+' 秒';}
+function hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(36).toUpperCase();}
+function vcode(d){const a=hash(d).padStart(8,'0');return 'ACC2-'+a.slice(0,4)+'-'+a.slice(4,8);}
+function b64e(s){return btoa(String.fromCharCode(...new TextEncoder().encode(s)));}
+function b64d(s){return new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)));}
+function finish(){
+ const done=STEPS.slice(0,-1).map(s=>!!s.f());
+ if(done.includes(false)){
+  dlg('尚未完成','仍有步驟未完成或未正確完成(步驟 '+done.map((d,i)=>d?null:i+1).filter(Boolean).join('、')+
+   ')。<br><br>你可以先返回修改;若現在提交,未完成部分將不會得分。',
+   [{label:'返回修改',fn:()=>{}},{label:'仍然提交',fn:showReport}]);
+ } else showReport();
+}
+function showReport(){
+ st.submits++;
+ const g=grade(),end=new Date();
+ const rep={ex:EX.id,title:EX.title,name:st.info.name,cls:st.info.cls,sid:st.info.sid,
+  start:st.start.toLocaleString('zh-HK',{hour12:false}),end:end.toLocaleString('zh-HK',{hour12:false}),
+  dur:fmtDur(end-st.start),hints:st.hints,errs:st.errs,submits:st.submits,
+  raw:g.raw,full:g.full,dh:g.dh,de:g.de,final:g.final,pct:g.pct};
+ const digest=b64e(JSON.stringify(rep)),code=vcode(digest);
+ const inner=reportHTML(rep,g,digest,code);
+ $('#rptCard').innerHTML=inner+
+  '<div class="tb"><button class="pri" id="dl">⬇ 下載報告檔(交給老師)</button><button id="pr">🖨 列印 / 儲存為 PDF</button>'+
+  '<button id="cp">📋 複製摘要碼</button><button id="bk">返回修改</button></div>';
+ $('#rptOverlay').style.display='flex';
+ const doc='<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><title>Access練習2 報告 - '+
+  esc(rep.cls)+' '+esc(rep.name)+' - '+fmtM(g.final)+'/'+fmtM(g.full)+'</title><style>body{font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif;margin:22px;color:#222}'+
+  RPT_CSS+'@media print{body{margin:8mm}}</style></head><body>'+inner+'</body></html>';
+ $('#dl').onclick=()=>{const b=new Blob([doc],{type:'text/html;charset=utf-8'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);
+  a.download='Access練習2_'+(rep.cls||'班別')+'_'+(rep.sid?rep.sid+'_':'')+(rep.name||'學生')+'_'+fmtM(g.final)+'分.html';a.click();};
+ $('#pr').onclick=()=>{const w=window.open('','_blank');if(!w){alert('請允許彈出視窗,或改用「下載報告檔」。');return;}
+  w.document.write(doc);w.document.close();w.focus();setTimeout(()=>w.print(),400);};
+ $('#cp').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(digest+'\n'+code);alert('已複製摘要碼及驗證碼。');};
+ $('#bk').onclick=()=>{$('#rptOverlay').style.display='none';};
+}
+function reportHTML(rep,g,digest,code){
+ const tbl='<h2 class="rh2">三、最後的資料表內容</h2><table class="rpt"><tr>'+
+  st.savedFields.map(f=>'<th class="c">'+esc(f.name)+'</th>').join('')+'</tr>'+
+  st.records.map(r=>'<tr>'+st.savedFields.map(f=>'<td class="c">'+esc(r[f.name]||'')+'</td>').join('')+'</tr>').join('')+'</table>';
+ return '<div class="rpt-head"><div><h1>中三 電腦科 — 資料庫練習成績報告</h1><div class="meta">'+
+  '<b>練習:</b>'+esc(rep.title)+'<br>'+
+  '<b>姓名:</b>'+esc(rep.name)+' &nbsp; <b>班別:</b>'+esc(rep.cls)+' &nbsp; <b>班號:</b>'+esc(rep.sid||'-')+'<br>'+
+  '<b>完成時間:</b>'+esc(rep.end)+' &nbsp; <b>用時:</b>'+esc(rep.dur)+'<br>'+
+  '<b>提示:</b>'+rep.hints+' 次 &nbsp; <b>誤操作:</b>'+rep.errs+' 次 &nbsp; <b>提交:</b>'+rep.submits+' 次'+
+  '</div></div><div class="scorebox"><div class="sb-l">最終得分 FINAL SCORE</div>'+
+  '<div class="sb-s">'+fmtM(g.final)+'<span class="sb-t"> / '+fmtM(g.full)+'</span></div>'+
+  '<div class="sb-p">'+g.pct+'% &nbsp;·&nbsp; '+bandOf(g.pct)+'</div></div></div>'+
+  '<h2 class="rh2">一、詳細評分</h2><table class="rpt"><tr><th style="width:26%">評分項目</th><th>你的答案 / 操作</th><th>正確答案</th><th class="c" style="width:80px">得分</th></tr>'+
+  g.items.map(i=>'<tr><td>'+esc(i.l)+'</td><td class="'+(i.g===i.f?'good':'bad')+'">'+esc(i.y)+'</td><td>'+esc(i.c)+'</td><td class="c">'+fmtM(i.g)+' / '+fmtM(i.f)+'</td></tr>').join('')+
+  '<tr><th colspan="3">操作項目小計</th><th class="c">'+fmtM(g.raw)+' / '+fmtM(g.full)+'</th></tr>'+
+  '<tr><td colspan="3">提示扣分('+rep.hints+' × '+fmtM(EX.penalty.hint)+',上限 '+fmtM(EX.penalty.hintMax)+')</td><td class="c">- '+fmtM(g.dh)+'</td></tr>'+
+  '<tr><td colspan="3">誤操作扣分('+rep.errs+' × '+fmtM(EX.penalty.err)+',上限 '+fmtM(EX.penalty.errMax)+')</td><td class="c">- '+fmtM(g.de)+'</td></tr>'+
+  '<tr><th colspan="3">最終得分</th><th class="c">'+fmtM(g.final)+' / '+fmtM(g.full)+'</th></tr></table>'+
+  (g.notes.length?'<h2 class="rh2">二、需注意之處</h2><ul style="font-size:13px">'+g.notes.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>'
+   :'<h2 class="rh2">二、需注意之處</h2><div style="font-size:13px">操作正常,沒有特別需要注意的地方。</div>')+
+  tbl+
+  '<h2 class="rh2">四、防偽驗證</h2><div style="font-size:12.5px">驗證碼:<b>'+code+'</b>(老師可在練習檔按 Ctrl+Alt+T 驗證)</div>'+
+  '<div style="font-size:12px;margin-top:4px">摘要碼:</div><div class="dig">'+digest+'</div>'+
+  '<h2 class="rh2">五、操作紀錄(最後 25 項)</h2><div style="font-size:11.5px;line-height:1.5;color:#555">'+st.log.slice(-25).map(esc).join('<br>')+'</div>'+
+  '<div class="signbox">老師評語:________________________________________________ &nbsp;&nbsp; 簽署:____________ &nbsp;&nbsp; 日期:____________</div>';
+}
+
+/* ============================================================
+   12. 老師驗證工具 (Ctrl+Alt+T)
+   ============================================================ */
+function teacherTool(){
+ const L=$('#layer');
+ L.innerHTML='<div class="dlg" style="min-width:520px"><div class="dh">老師專用:報告驗證工具</div><div class="db">'+
+  '請貼上學生報告中的「摘要碼」:<div style="margin:5px 0"><textarea id="tvd" style="width:100%;height:80px;font-family:Consolas,monospace;font-size:11px"></textarea></div>'+
+  '報告上的驗證碼:<div style="margin:5px 0"><input id="tvc" type="text" placeholder="ACC2-XXXX-XXXX"></div><div id="tvr" style="font-size:13px"></div></div>'+
+  '<div class="df"><button id="tvgo">驗證</button><button id="tvx">關閉</button></div></div>';
+ L.style.display='flex';
+ $('#tvx').onclick=()=>{L.style.display='none';};
+ $('#tvgo').onclick=()=>{
+  const d=$('#tvd').value.trim(),c=$('#tvc').value.trim().toUpperCase();
+  try{
+   const o=JSON.parse(b64d(d)),ok=(vcode(d)===c);
+   $('#tvr').innerHTML='<div style="margin-top:8px;padding:8px;background:'+(ok?'#eaf7ee':'#fdecec')+';border:1px solid '+(ok?'#8c8':'#e99')+'">'+
+    '<b>'+(ok?'✔ 驗證碼相符,報告內容未被修改':'✘ 驗證碼不符,報告可能被修改')+'</b><br>'+
+    '姓名:'+esc(o.name)+'  班別:'+esc(o.cls)+'  班號:'+esc(o.sid||'-')+'<br>練習:'+esc(o.title)+'<br>'+
+    '<b style="font-size:15px">最終得分:'+fmtM(o.final)+' / '+fmtM(o.full)+(o.pct!=null?'('+o.pct+'%)':'')+'</b><br>'+
+    '(操作分 '+fmtM(o.raw)+',提示扣 '+fmtM(o.dh)+',誤操作扣 '+fmtM(o.de)+')<br>'+
+    '用時:'+esc(o.dur)+'  提示 '+o.hints+' 次  誤操作 '+o.errs+' 次  提交 '+o.submits+' 次<br>'+
+    '開始:'+esc(o.start)+'  完成:'+esc(o.end)+'</div>';
+  }catch(e){$('#tvr').innerHTML='<div style="color:#b00;margin-top:8px">摘要碼格式錯誤,無法解讀。</div>';}
+ };
+}
+
+/* ============================================================
+   13. 啟動
+   ============================================================ */
+pad();
+$('#coverFull').textContent='滿分 '+fmtM(fullMark())+' 分';
+$('#coverPen').textContent='每次提示扣 '+fmtM(EX.penalty.hint)+' 分,最多扣 '+fmtM(EX.penalty.hintMax)+' 分';
+$('#btnStart').onclick=()=>{
+ const n=$('#s_name').value.trim(),c=$('#s_cls').value.trim();
+ if(!n||!c){alert('請填寫姓名及班別。');return;}
+ st.info={name:n,cls:c,sid:$('#s_id').value.trim()};
+ st.start=new Date();
+ $('#start').style.display='none';
+ $('#topinfo').textContent='學生:'+n+'('+c+(st.info.sid?' '+st.info.sid:'')+')';
+ log('開始練習(承接練習一:4 個欄位、6 筆記錄)');
+ setStatus('請在導覽窗格用滑鼠右鍵按「'+EX.tableName+'」→ 設計檢視。');
+ st.tab='home';render();
+ setInterval(()=>{const s=Math.floor((Date.now()-st.start)/1000);
+  $('#timer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');},1000);
+};
+render();
+</script>
+</body>
+</html>
