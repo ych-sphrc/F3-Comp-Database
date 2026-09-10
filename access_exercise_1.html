@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>模擬 Microsoft Access 自學練習(一):建立資料表「學生個人資料」</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;font-size:14px;background:#dcdcdc;color:#1f1f1f;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+/* ---------- 頂部 ---------- */
+#top{height:46px;background:#20476b;color:#fff;display:flex;align-items:center;padding:0 12px;gap:14px}
+#top .t{font-weight:bold;font-size:15px}
+#top .sp{flex:1}
+#top .info{font-size:13px;opacity:.9}
+#top button{border:0;border-radius:4px;padding:7px 12px;font-size:13px}
+.bt-fin{background:#2e8b57;color:#fff;font-weight:bold}
+.bt-rst{background:#5a7fa5;color:#fff}
+/* ---------- 版面 ---------- */
+#wrap{display:flex;height:calc(100% - 46px)}
+#left{flex:1;min-width:0;padding:8px;display:flex}
+#guide{width:340px;background:#f7f7f7;border-left:2px solid #b9b9b9;overflow:auto;padding:10px}
+/* ---------- Access 視窗 ---------- */
+#win{flex:1;display:flex;flex-direction:column;background:#fff;border:1px solid #999;box-shadow:0 2px 8px rgba(0,0,0,.25);min-width:0}
+#titlebar{background:#a4373a;color:#fff;height:30px;display:flex;align-items:center;padding:0 8px;font-size:12.5px;gap:10px}
+#qat{display:flex;gap:6px}
+#qat span{cursor:pointer;padding:1px 4px;border-radius:3px}
+#qat span:hover{background:rgba(255,255,255,.25)}
+#tt{flex:1;text-align:center;opacity:.95}
+#tabs{display:flex;background:#f1f1f1;border-bottom:1px solid #d0d0d0;font-size:13px}
+#tabs div{padding:6px 14px;cursor:pointer;color:#333}
+#tabs div:hover{background:#e4e4e4}
+#tabs div.on{background:#fff;border:1px solid #d0d0d0;border-bottom:1px solid #fff;margin-bottom:-1px;font-weight:bold;color:#a4373a}
+#tabs div.ctx{color:#1a6b3c}
+#ribbon{background:#fff;border-bottom:1px solid #c8c8c8;display:flex;padding:4px 6px;min-height:78px;gap:2px;overflow-x:auto}
+.grp{display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid #e2e2e2;padding:2px 8px}
+.grp .gi{display:flex;gap:4px}
+.grp .gn{text-align:center;font-size:11px;color:#777;padding-top:3px}
+.rb{border:1px solid transparent;background:none;border-radius:3px;width:66px;padding:3px 2px;font-size:11.5px;line-height:1.25;text-align:center}
+.rb .ic{display:block;font-size:19px}
+.rb:hover{background:#fde9ea;border-color:#e3b6b8}
+.rb.act{background:#fbd6d8;border-color:#c98488}
+#body{flex:1;display:flex;min-height:0}
+#nav{width:170px;background:#eef1f5;border-right:1px solid #c8c8c8;font-size:12.5px;overflow:auto}
+#nav .h{background:#dfe6ee;padding:5px 6px;font-weight:bold;border-bottom:1px solid #c8c8c8}
+#nav .g{padding:5px 6px;color:#555;font-weight:bold}
+#nav .it{padding:3px 6px 3px 18px;cursor:pointer}
+#nav .it:hover{background:#cfe0f2}
+#doc{flex:1;display:flex;flex-direction:column;min-width:0;background:#f3f3f3}
+#doctabs{display:flex;background:#e9e9e9;border-bottom:1px solid #c8c8c8;font-size:12.5px}
+#doctabs .dt{padding:4px 10px;background:#fff;border:1px solid #c8c8c8;border-bottom:0;margin:2px 0 0 3px}
+#docarea{flex:1;overflow:auto;padding:0}
+#status{height:24px;background:#a4373a;color:#fff;font-size:12px;display:flex;align-items:center;padding:0 8px;gap:8px}
+#status .sp{flex:1}
+#status .vb{cursor:pointer;padding:1px 5px;border-radius:3px}
+#status .vb:hover{background:rgba(255,255,255,.3)}
+#status .vb.on{background:rgba(255,255,255,.45)}
+/* ---------- 設計檢視 ---------- */
+.dgwrap{background:#fff;padding:0}
+table.dg{border-collapse:collapse;width:100%}
+table.dg th{background:#e8ecf1;border:1px solid #b9c2cc;font-size:12.5px;padding:4px;font-weight:normal}
+table.dg td{border:1px solid #c9d0d8;padding:0}
+table.dg td.rh{width:26px;text-align:center;background:#e8ecf1;cursor:pointer;font-size:12px}
+table.dg tr.sel td.rh{background:#c9d7e6}
+table.dg input,table.dg select{width:100%;border:0;padding:4px;font-family:inherit;font-size:13px;background:transparent}
+table.dg input:focus,table.dg select:focus{outline:2px solid #7aa5d2;background:#fffbe6}
+.props{border-top:3px solid #a4373a;background:#eef1f5;padding:6px}
+.props .ttl{font-weight:bold;font-size:12.5px;margin-bottom:4px}
+.props table{border-collapse:collapse;background:#fff;width:100%;max-width:640px}
+.props td{border:1px solid #cdd4dc;padding:2px 5px;font-size:12.5px}
+.props td.k{width:150px;background:#f4f6f9}
+.props input,.props select{width:100%;border:1px solid #9ab;padding:2px;font-family:inherit;font-size:12.5px}
+.props .ro{color:#888}
+/* ---------- 資料工作表檢視 ---------- */
+table.ds{border-collapse:collapse;background:#fff}
+table.ds th{background:#e8ecf1;border:1px solid #b9c2cc;padding:5px 8px;font-size:12.5px;min-width:110px}
+table.ds td{border:1px solid #d5dbe2;padding:0}
+table.ds td.rh{width:24px;text-align:center;background:#e8ecf1;cursor:pointer;color:#a4373a}
+table.ds input{width:100%;min-width:110px;border:0;padding:5px 8px;font-size:13px;font-family:inherit}
+table.ds input:focus{outline:2px solid #f0a30a;background:#fffbe6}
+table.ds input.num{text-align:right}
+tr.newrow input{color:#333}
+/* ---------- 指引 ---------- */
+#guide h3{margin:4px 0 8px;font-size:15px;color:#20476b}
+.step{border:1px solid #d6d6d6;background:#fff;border-radius:5px;padding:7px 8px;margin-bottom:6px;font-size:13px}
+.step.cur{border-color:#2e8b57;box-shadow:0 0 0 2px #cdebd9}
+.step.ok{background:#f2fbf5;color:#4a6a56}
+.step .n{font-weight:bold}
+.step .d{font-size:12.5px;color:#555;margin-top:3px;display:none}
+.step.cur .d{display:block}
+.step .hintbox{display:none;margin-top:5px;background:#fff8e1;border:1px dashed #e0b400;padding:5px;font-size:12.5px}
+.hb{margin-top:5px;border:1px solid #cbb;background:#f6efef;border-radius:4px;padding:3px 8px;font-size:12px}
+#reftab{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:6px}
+#reftab th,#reftab td{border:1px solid #c8c8c8;padding:3px 5px;text-align:center}
+#reftab th{background:#e8ecf1}
+.gsec{margin-top:12px;border-top:1px solid #ccc;padding-top:8px}
+#log{height:90px;overflow:auto;background:#fff;border:1px solid #ccc;font-size:11.5px;padding:4px;color:#555}
+/* ---------- 對話框 ---------- */
+#layer{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;z-index:50}
+.dlg{background:#f0f0f0;border:1px solid #666;box-shadow:0 6px 20px rgba(0,0,0,.4);min-width:340px;max-width:520px}
+.dlg .dh{background:#a4373a;color:#fff;padding:5px 9px;font-size:13px}
+.dlg .db{padding:14px;font-size:13.5px;line-height:1.55;background:#fff}
+.dlg .df{padding:9px;display:flex;justify-content:flex-end;gap:8px;background:#f0f0f0}
+.dlg .df button{min-width:82px;padding:5px 10px;border:1px solid #888;background:#e9e9e9;border-radius:3px;font-size:13px}
+.dlg .df button:hover{background:#dcdcdc}
+.dlg input{width:100%;padding:5px;font-size:13.5px;font-family:inherit;border:1px solid #888}
+/* ---------- 開始畫面 / 報告 ---------- */
+.cover{position:fixed;inset:0;background:#20476b;color:#fff;z-index:80;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;color:#222;border-radius:8px;padding:24px 28px;width:min(680px,92vw);max-height:92vh;overflow:auto}
+.card h1{margin:0 0 6px;font-size:20px;color:#20476b}
+.card h2{font-size:16px;color:#20476b}
+.card label{display:block;margin:10px 0 3px;font-size:13px;font-weight:bold}
+.card input[type=text]{width:100%;padding:7px;font-size:14px;border:1px solid #aaa;border-radius:4px;font-family:inherit}
+.card .go{margin-top:16px;background:#2e8b57;color:#fff;border:0;border-radius:5px;padding:10px 18px;font-size:15px;font-weight:bold}
+.card ul{font-size:13px;line-height:1.6;padding-left:20px}
+#rptOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:90;display:none;align-items:center;justify-content:center}
+table.rpt{border-collapse:collapse;width:100%;font-size:12.5px;margin:8px 0}
+table.rpt th,table.rpt td{border:1px solid #bbb;padding:4px 6px}
+table.rpt th{background:#e8ecf1}
+table.rpt td.c{text-align:center}
+.bad{color:#b00}.good{color:#0a7a3f}
+.big{font-size:30px;font-weight:bold;color:#20476b}
+.dig{font-family:Consolas,monospace;font-size:11px;word-break:break-all;background:#f4f4f4;border:1px solid #ccc;padding:6px}
+.tb{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.tb button{padding:8px 14px;border:1px solid #888;background:#eee;border-radius:4px;font-size:13.5px}
+.tb button.pri{background:#20476b;color:#fff;border-color:#20476b;font-weight:bold}
+</style>
+</head>
+<body>
+
+<!-- ====== 開始畫面 ====== -->
+<div class="cover" id="start">
+ <div class="card">
+  <h1>模擬 Microsoft Access 自學練習(一)</h1>
+  <div style="font-size:15px;margin-bottom:6px">建立資料表:<b>學生個人資料</b>(中三 電腦科)</div>
+  <ul>
+   <li>本練習在網頁中<b>模擬 Access 操作</b>,不需安裝任何軟件。</li>
+   <li>右方會顯示<b>逐步指示</b>,有需要時可按「顯示提示」(每次提示會扣 1 分,最多扣 5 分)。</li>
+   <li>完成後按右上角<b>「完成練習,產生報告」</b>,系統會自動評分。</li>
+   <li>請<b>下載報告檔並上傳到指定平台交給老師</b>。</li>
+  </ul>
+  <label>姓名 *</label><input type="text" id="s_name" placeholder="例:陳大文">
+  <label>班別 *</label><input type="text" id="s_cls" placeholder="例:3A">
+  <label>班號 / 學號</label><input type="text" id="s_id" placeholder="例:12">
+  <button class="go" id="btnStart">開始練習</button>
+ </div>
+</div>
+
+<!-- ====== 主介面 ====== -->
+<div id="top">
+ <span class="t">練習一:建立資料表「學生個人資料」</span>
+ <span class="info" id="topinfo"></span>
+ <span class="sp"></span>
+ <span class="info" id="timer">00:00</span>
+ <button class="bt-rst" data-act="reset">重新開始</button>
+ <button class="bt-fin" data-act="finish">完成練習,產生報告</button>
+</div>
+
+<div id="wrap">
+ <div id="left">
+  <div id="win">
+   <div id="titlebar">
+     <span id="qat"><span data-act="qsave" title="儲存 (Ctrl+S)">💾</span><span title="復原">↩</span><span title="重複">↪</span></span>
+     <span id="tt"></span><span>— ▫ ✕</span>
+   </div>
+   <div id="tabs"></div>
+   <div id="ribbon"></div>
+   <div id="body">
+     <div id="nav"></div>
+     <div id="doc"><div id="doctabs"></div><div id="docarea"></div></div>
+   </div>
+   <div id="status">
+     <span id="stmsg"></span><span class="sp"></span>
+     <span class="vb" data-act="view" data-arg="datasheet" title="資料工作表檢視">▦</span>
+     <span class="vb" data-act="view" data-arg="design" title="設計檢視">📐</span>
+   </div>
+  </div>
+ </div>
+ <div id="guide"></div>
+</div>
+
+<div id="layer"></div>
+<div id="rptOverlay"><div class="card" id="rptCard"></div></div>
+
+<script>
+/* ============================================================
+   1. 練習設定 —— 老師只需修改這一段,即可製作其他練習
+   ============================================================ */
+const EX = {
+  id:'EX1',
+  title:'練習一:建立資料表「學生個人資料」',
+  dbFile:'學生資料.accdb',
+  tableName:'學生個人資料',
+  fields:[
+    {name:'學生編號', type:'文字', size:'3'},
+    {name:'姓名',     type:'文字', size:'20'},
+    {name:'身高',     type:'數字', size:'整數'},
+    {name:'體重',     type:'數字', size:'整數'}
+  ],
+  pk:'學生編號',
+  data:[
+    ['1','王一全','168','59'],
+    ['2','陳明','163','60'],
+    ['3','張恩芳','155','48'],
+    ['4','李霞','152','45'],
+    ['5','吳金鳳','166','50'],
+    ['6','何明坤','180','68']
+  ],
+  marks:{enter:4, fname:3, ftype:3, fsize:3, pk:8, save:4, record:8},
+  penalty:{hint:1,hintMax:5, err:1, errMax:8}
+};
+const TYPES=['','文字','備忘','數字','日期/時間','貨幣','自動編號','是/否','OLE 物件','超連結','附件','計算','查閱精靈...'];
+const NUMSIZE=['位元組','整數','長整數','單精度浮點數','雙精度浮點數','複製識別碼','小數'];
+
+/* ============================================================
+   2. 狀態
+   ============================================================ */
+const st={
+  info:{name:'',cls:'',sid:''},
+  start:null, submits:0,
+  tab:'create', visited:{}, view:'none',
+  rows:[], sel:0, pk:null,
+  saved:false, tableName:'', docTitle:'資料表1',
+  records:[], selRec:-1,
+  enteredDesign:false, viaDesignBtn:false, visitedDatasheet:false,
+  autoPK:false, hints:0, errs:0, hintShown:{}, log:[]
+};
+for(let i=0;i<8;i++) st.rows.push({name:'',type:'',size:'',desc:''});
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function log(t){st.log.push(new Date().toLocaleTimeString('zh-HK',{hour12:false})+' '+t); if(st.log.length>200)st.log.shift();}
+function setStatus(t){$('#stmsg').textContent=t;}
+function pad(){while(st.rows.length<8)st.rows.push({name:'',type:'',size:'',desc:''});
+  if(st.rows[st.rows.length-1].name.trim()!=='')st.rows.push({name:'',type:'',size:'',desc:''});}
+const fields=()=>st.rows.filter(r=>r.name.trim()!=='');
+const pkName=()=>(st.pk!=null&&st.rows[st.pk])?st.rows[st.pk].name.trim():'';
+
+/* ============================================================
+   3. 對話框
+   ============================================================ */
+function dlg(title,html,btns){
+  const L=$('#layer');
+  L.innerHTML='<div class="dlg"><div class="dh">'+esc(title)+'</div><div class="db">'+html+'</div><div class="df">'+
+    btns.map((b,i)=>'<button data-i="'+i+'">'+esc(b.label)+'</button>').join('')+'</div></div>';
+  L.style.display='flex';
+  L.querySelectorAll('.df button').forEach(b=>b.onclick=()=>{L.style.display='none';const f=btns[+b.dataset.i].fn;if(f)f();});
+}
+function msgbox(t,after){dlg('Microsoft Access',t,[{label:'確定',fn:after}]);}
+function inputbox(title,label,val,cb){
+  const L=$('#layer');
+  L.innerHTML='<div class="dlg"><div class="dh">'+esc(title)+'</div><div class="db">'+esc(label)+
+   '<div style="margin-top:6px"><input id="dlgin" type="text" value="'+esc(val)+'"></div></div>'+
+   '<div class="df"><button id="dok">確定</button><button id="dc">取消</button></div></div>';
+  L.style.display='flex';
+  const inp=$('#dlgin'); inp.focus(); inp.select();
+  $('#dok').onclick=()=>{const v=inp.value;L.style.display='none';cb(v);};
+  $('#dc').onclick=()=>{L.style.display='none';};
+  inp.onkeydown=e=>{if(e.key==='Enter')$('#dok').click();};
+}
+function wrongClick(msg){st.errs++;log('誤操作:'+msg);setStatus('⚠ '+msg);msgbox(msg);}
+
+/* ============================================================
+   4. 功能區
+   ============================================================ */
+const RIBBON={
+ file:{label:'檔案'},
+ home:{label:'常用',groups:[
+   {n:'檢視',i:[{id:'view',ic:'🗔',l:'檢視'}]},
+   {n:'剪貼簿',i:[{id:'x',ic:'📋',l:'貼上'},{id:'x',ic:'✂️',l:'剪下'},{id:'x',ic:'🧾',l:'複製'}]},
+   {n:'記錄',i:[{id:'recnew',ic:'➕',l:'新增'},{id:'recdel',ic:'❌',l:'刪除'},{id:'qsave',ic:'💾',l:'儲存'}]},
+   {n:'排序與篩選',i:[{id:'x',ic:'🔼',l:'遞增'},{id:'x',ic:'🔽',l:'遞減'},{id:'x',ic:'🔻',l:'篩選'}]},
+   {n:'尋找',i:[{id:'x',ic:'🔍',l:'尋找'},{id:'x',ic:'🔁',l:'取代'}]}
+ ]},
+ create:{label:'建立',groups:[
+   {n:'範本',i:[{id:'x',ic:'🧩',l:'應用程式組件'}]},
+   {n:'資料表',i:[{id:'tblnew',ic:'▦',l:'資料表'},{id:'tbldesign',ic:'📐',l:'資料表設計'},{id:'x',ic:'📄',l:'SharePoint 清單'}]},
+   {n:'查詢',i:[{id:'x',ic:'🧙',l:'查詢精靈'},{id:'x',ic:'🔎',l:'查詢設計'}]},
+   {n:'表單',i:[{id:'x',ic:'🗒️',l:'表單'},{id:'x',ic:'🧰',l:'表單設計'}]},
+   {n:'報表',i:[{id:'x',ic:'📊',l:'報表'},{id:'x',ic:'🏷️',l:'標籤'}]}
+ ]},
+ ext:{label:'外部資料',groups:[
+   {n:'匯入與連結',i:[{id:'x',ic:'📥',l:'新資料來源'}]},
+   {n:'匯出',i:[{id:'x',ic:'📤',l:'Excel'},{id:'x',ic:'📧',l:'電子郵件'}]}
+ ]},
+ tools:{label:'資料庫工具',groups:[
+   {n:'關聯',i:[{id:'x',ic:'🔗',l:'資料庫關聯圖'}]},
+   {n:'巨集',i:[{id:'x',ic:'⚙️',l:'Visual Basic'}]}
+ ]},
+ design:{label:'設計',ctx:true,groups:[
+   {n:'檢視',i:[{id:'view',ic:'🗔',l:'檢視'}]},
+   {n:'工具',i:[{id:'pk',ic:'🔑',l:'主索引鍵'},{id:'x',ic:'✅',l:'測試驗證規則'},{id:'insrow',ic:'⬆️',l:'插入列'},{id:'delrow',ic:'🗑️',l:'刪除列'}]},
+   {n:'顯示/隱藏',i:[{id:'x',ic:'ℹ️',l:'屬性表'},{id:'x',ic:'📑',l:'索引'}]}
+ ]}
+};
+function renderRibbon(){
+  const order=['file','home','create','ext','tools'].concat(st.view==='design'?['design']:[]);
+  $('#tabs').innerHTML=order.map(k=>'<div data-act="tab" data-arg="'+k+'" class="'+(st.tab===k?'on ':'')+(RIBBON[k].ctx?'ctx':'')+'">'+
+     (RIBBON[k].ctx?'資料表工具 · ':'')+RIBBON[k].label+'</div>').join('');
+  const g=(RIBBON[st.tab]&&RIBBON[st.tab].groups)||[];
+  $('#ribbon').innerHTML=g.map(gr=>'<div class="grp"><div class="gi">'+gr.i.map(b=>
+     '<button class="rb'+((b.id==='pk'&&st.pk===st.sel)?' act':'')+'" data-act="btn" data-arg="'+b.id+'"><span class="ic">'+b.ic+'</span>'+b.l+'</button>').join('')+
+     '</div><div class="gn">'+gr.n+'</div></div>').join('');
+}
+
+/* ============================================================
+   5. 文件區(設計檢視 / 資料工作表檢視)
+   ============================================================ */
+function renderDoc(){
+  const d=$('#docarea');
+  if(st.view==='none'){
+    d.innerHTML='<div style="padding:40px;color:#666;font-size:14px;line-height:1.8">'+
+      '尚未開啟任何資料庫物件。<br>請依右方指示,先按功能區的「<b>建立</b>」索引標籤。</div>';
+    $('#doctabs').innerHTML='';return;
+  }
+  $('#doctabs').innerHTML='<div class="dt">'+(st.view==='design'?'📐 ':'▦ ')+esc(st.docTitle)+
+     (st.view==='design'?'(設計檢視)':'')+' &nbsp;✕</div>';
+  d.innerHTML = st.view==='design' ? designHTML() : dsHTML();
+}
+function designHTML(){
+  pad();
+  let h='<div class="dgwrap"><table class="dg"><thead><tr><th style="width:26px"></th><th style="width:34%">欄位名稱</th><th style="width:26%">資料類型</th><th>描述 (選用)</th></tr></thead><tbody>';
+  st.rows.forEach((r,i)=>{
+    const m=(st.pk===i?'🔑':(st.sel===i?'▶':''));
+    h+='<tr class="'+(st.sel===i?'sel':'')+'"><td class="rh" data-act="drow" data-arg="'+i+'">'+m+'</td>'+
+      '<td><input class="dg-name" data-r="'+i+'" maxlength="64" value="'+esc(r.name)+'"></td>'+
+      '<td><select class="dg-type" data-r="'+i+'">'+TYPES.map(t=>'<option '+(t===r.type?'selected':'')+'>'+t+'</option>').join('')+'</select></td>'+
+      '<td><input class="dg-desc" data-r="'+i+'" value="'+esc(r.desc)+'"></td></tr>';
+  });
+  h+='</tbody></table></div>'+propsHTML();
+  return h;
+}
+function propsHTML(){
+  const r=st.rows[st.sel]||{name:'',type:'',size:''};
+  let sz;
+  if(r.type==='文字') sz='<input class="fp-size" value="'+esc(r.size)+'" maxlength="3">';
+  else if(r.type==='數字') sz='<select class="fp-size">'+NUMSIZE.map(o=>'<option '+(o===r.size?'selected':'')+'>'+o+'</option>').join('')+'</select>';
+  else sz='<span class="ro">'+esc(r.size||'')+'</span>';
+  const P=[['欄位大小',sz],['格式','<span class="ro"></span>'],['標題','<span class="ro"></span>'],
+    ['預設值','<span class="ro"></span>'],['驗證規則','<span class="ro"></span>'],['必填欄位','<span class="ro">否</span>'],
+    ['索引','<span class="ro">'+(st.pk===st.sel?'是 (不可重複)':'否')+'</span>']];
+  return '<div class="props"><div class="ttl">欄位屬性 &nbsp;—&nbsp; 一般 | 查閱 &nbsp;('+(r.name?esc(r.name):'未選取欄位')+')</div>'+
+    '<table>'+P.map(p=>'<tr><td class="k">'+p[0]+'</td><td>'+p[1]+'</td></tr>').join('')+'</table>'+
+    '<div style="font-size:11.5px;color:#666;margin-top:5px">提示:先按左邊列選取器選取欄位,再修改「欄位大小」。</div></div>';
+}
+function dsHTML(){
+  const fs=fields();
+  if(!fs.length) return '<div style="padding:30px">此資料表沒有欄位。</div>';
+  let h='<div style="padding:6px"><table class="ds"><thead><tr><th style="width:24px"></th>'+
+     fs.map(f=>'<th>'+esc(f.name)+'</th>').join('')+'</tr></thead><tbody>';
+  st.records.forEach((rec,i)=>{
+    h+='<tr><td class="rh" data-act="drec" data-arg="'+i+'">'+(st.selRec===i?'▶':'')+'</td>'+
+      fs.map((f,c)=>'<td><input class="ds-cell'+(f.type==='數字'?' num':'')+'" data-r="'+i+'" data-c="'+c+'" value="'+esc(rec[c]||'')+'"></td>').join('')+'</tr>';
+  });
+  h+='<tr class="newrow"><td class="rh">✳</td>'+fs.map((f,c)=>'<td><input class="ds-new'+(f.type==='數字'?' num':'')+'" data-c="'+c+'" value=""></td>').join('')+'</tr>';
+  h+='</tbody></table><div style="font-size:12px;color:#666;margin-top:6px">記錄:共 '+st.records.length+' 筆(Access 會自動儲存已輸入的記錄)</div></div>';
+  return h;
+}
+function renderNav(){
+  $('#nav').innerHTML='<div class="h">所有 Access 物件 ⌄</div><div class="g">資料表</div>'+
+    (st.saved?'<div class="it" data-act="navitem">▦ '+esc(st.tableName)+'</div>':'<div class="it" style="color:#999">(尚無資料表)</div>')+
+    '<div class="g">查詢</div><div class="g">表單</div><div class="g">報表</div>';
+}
+function renderStatus(){
+  $('#tt').textContent=(st.saved?st.tableName:'資料庫1')+' : 資料庫- C:\\Users\\Student\\Documents\\'+EX.dbFile+'  (Access 2007-2016 檔案格式) - Access';
+  $$('#status .vb').forEach(v=>v.classList.toggle('on',v.dataset.arg===st.view));
+}
+function render(){renderRibbon();renderDoc();renderNav();renderStatus();renderGuide();}
+
+/* ============================================================
+   6. 操作邏輯
+   ============================================================ */
+function enterDesign(viaBtn){
+  st.view='design';st.tab='design';st.enteredDesign=true;if(viaBtn)st.viaDesignBtn=true;
+  st.docTitle=st.saved?st.tableName:'資料表1';
+  log('進入設計檢視'+(viaBtn?'(建立→資料表設計)':''));
+  setStatus('設計檢視:請輸入欄位名稱及選擇資料類型。');render();
+}
+function addAutoPK(){
+  st.rows.unshift({name:'識別碼',type:'自動編號',size:'長整數',desc:''});
+  st.pk=0;st.autoPK=true;st.sel=0;log('Access 自動加入「識別碼」欄位作主索引鍵');
+}
+function saveTable(after){
+  if(fields().length===0){msgbox('必須至少定義一個欄位,才能儲存資料表。');return;}
+  inputbox('另存新檔','資料表名稱:',st.saved?st.tableName:st.docTitle,v=>{
+    if(!v.trim())return;
+    const fin=()=>{st.saved=true;st.tableName=v.trim();st.docTitle=v.trim();
+      log('儲存資料表為「'+st.tableName+'」');setStatus('已儲存資料表「'+st.tableName+'」');render();if(after)after();};
+    if(st.pk==null){
+      dlg('Microsoft Access','尚未定義主索引鍵。<br><br>雖然沒有主索引鍵也可以建立資料表,但主索引鍵可避免重複資料,並可用來建立資料表之間的關聯。<br><br><b>是否要立即建立主索引鍵?</b>',
+        [{label:'是(Y)',fn:()=>{addAutoPK();fin();}},{label:'否(N)',fn:fin},{label:'取消',fn:()=>{}}]);
+    } else fin();
+  });
+}
+function gotoDatasheet(){st.view='datasheet';st.visitedDatasheet=true;st.tab='home';
+  log('切換至資料工作表檢視');setStatus('資料工作表檢視:請輸入記錄。');render();}
+function toggleView(target){
+  const want = target || (st.view==='design'?'datasheet':'design');
+  if(want===st.view)return;
+  if(want==='design'){ if(!st.enteredDesign){wrongClick('請先按「建立 → 資料表設計」建立新資料表。');return;}
+    st.view='design';st.tab='design';render();return;}
+  if(!st.enteredDesign){wrongClick('請先按「建立 → 資料表設計」建立新資料表。');return;}
+  if(fields().length===0){msgbox('必須至少定義一個欄位。');return;}
+  if(!st.saved){
+    dlg('Microsoft Access','您必須先儲存資料表。<br><br>是否要立即儲存資料表?',
+      [{label:'是(Y)',fn:()=>saveTable(gotoDatasheet)},{label:'否(N)',fn:()=>{}}]);
+    return;
+  }
+  gotoDatasheet();
+}
+function btn(id){
+  if(id==='x'){wrongClick('本練習不需要使用這個按鈕,請按右方指示操作。');return;}
+  if(id==='tbldesign'){enterDesign(true);return;}
+  if(id==='tblnew'){wrongClick('「資料表」按鈕會直接以資料工作表檢視建立資料表。本練習要求按「資料表設計」進入設計檢視。');return;}
+  if(id==='view'){toggleView();return;}
+  if(id==='qsave'){ if(st.view==='none'){wrongClick('尚未有可儲存的物件。');return;} saveTable();return;}
+  if(id==='pk'){
+    if(st.view!=='design'){wrongClick('必須在設計檢視才可以設定主索引鍵。');return;}
+    const r=st.rows[st.sel];
+    if(!r||!r.name.trim()){wrongClick('請先選取一個已命名的欄位,才可設定主索引鍵。');return;}
+    if(st.pk===st.sel){st.pk=null;log('取消主索引鍵');setStatus('已取消主索引鍵');}
+    else{st.pk=st.sel;log('設定主索引鍵:'+r.name.trim());setStatus('已將「'+r.name.trim()+'」設為主索引鍵 🔑');}
+    render();return;
+  }
+  if(id==='insrow'){ if(st.view!=='design')return; st.rows.splice(st.sel,0,{name:'',type:'',size:'',desc:''});
+    if(st.pk!=null&&st.pk>=st.sel)st.pk++; render(); return;}
+  if(id==='delrow'){ if(st.view!=='design')return;
+    dlg('Microsoft Access','是否永久刪除選取的欄位?',[{label:'是(Y)',fn:()=>{
+      st.rows.splice(st.sel,1); if(st.pk===st.sel)st.pk=null; else if(st.pk!=null&&st.pk>st.sel)st.pk--;
+      if(st.sel>=st.rows.length)st.sel=st.rows.length-1; pad(); render();}},{label:'否(N)',fn:()=>{}}]);
+    return;}
+  if(id==='recnew'){ if(st.view!=='datasheet'){wrongClick('請先切換至資料工作表檢視。');return;}
+    const el=document.querySelector('.ds-new[data-c="0"]'); if(el)el.focus(); return;}
+  if(id==='recdel'){
+    if(st.view!=='datasheet'){wrongClick('請先切換至資料工作表檢視。');return;}
+    if(st.selRec<0){msgbox('請先按記錄左邊的列選取器,選取要刪除的記錄。');return;}
+    dlg('Microsoft Access','您即將刪除 1 筆記錄。<br><br>如果按「是」,將無法復原此刪除操作。<br>確定要刪除這筆記錄嗎?',
+      [{label:'是(Y)',fn:()=>{st.records.splice(st.selRec,1);st.selRec=-1;log('刪除一筆記錄');render();}},{label:'否(N)',fn:()=>{}}]);
+    return;}
+}
+function coerce(c,v){
+  const f=fields()[c]; if(!f)return v;
+  if(f.type==='數字'){const o=v;v=v.replace(/[^0-9\-]/g,'');if(o!==v)setStatus('此欄位的資料類型是「數字」,只可輸入數字。');}
+  if(f.type==='文字'){const n=parseInt(f.size,10);
+    if(!isNaN(n)&&n>0&&v.length>n){v=v.slice(0,n);setStatus('此欄位的欄位大小為 '+n+',最多只可輸入 '+n+' 個字元。');}}
+  return v;
+}
+function focusCell(r,c){const el=document.querySelector('.ds-cell[data-r="'+r+'"][data-c="'+c+'"]');
+  if(el){el.focus();const n=el.value.length;el.setSelectionRange(n,n);}}
+
+/* ---- 事件委派 ---- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]'); if(!t)return;
+  const a=t.dataset.act, g=t.dataset.arg;
+  if(a==='tab'){ if(g==='file'){msgbox('本練習不需使用「檔案」功能。');return;}
+    st.tab=g;st.visited[g]=true;log('切換索引標籤:'+RIBBON[g].label);render();return;}
+  if(a==='btn'){btn(g);return;}
+  if(a==='drow'){st.sel=+g;render();return;}
+  if(a==='drec'){st.selRec=+g;render();return;}
+  if(a==='view'){toggleView(g);return;}
+  if(a==='hint'){const i=+g; if(!st.hintShown[i]){st.hintShown[i]=1;st.hints++;log('使用提示(步驟 '+(i+1)+')');} renderGuide();return;}
+  if(a==='finish'){finish();return;}
+  if(a==='reset'){dlg('確認','重新開始會清除所有已輸入的資料及計分,確定嗎?',
+      [{label:'是',fn:()=>location.reload()},{label:'否',fn:()=>{}}]);return;}
+});
+document.addEventListener('focusin',e=>{
+  const el=e.target;
+  if(el.classList.contains('dg-name')||el.classList.contains('dg-desc')){
+    const r=+el.dataset.r; if(st.sel!==r){st.sel=r;
+      $$('table.dg tr').forEach((tr,i)=>{tr.classList.toggle('sel',i-0===r);});
+      $$('table.dg td.rh').forEach((td,i)=>{td.textContent=(st.pk===i?'🔑':(st.sel===i?'▶':''));});
+      const p=$('.props'); if(p)p.outerHTML=propsHTML();
+    }
+  }
+  if(el.classList.contains('ds-cell')) st.selRec=+el.dataset.r;
+});
+document.addEventListener('input',e=>{
+  const el=e.target;
+  if(el.classList.contains('dg-name')){st.rows[+el.dataset.r].name=el.value;pad();renderGuide();return;}
+  if(el.classList.contains('dg-desc')){st.rows[+el.dataset.r].desc=el.value;return;}
+  if(el.classList.contains('fp-size')){st.rows[st.sel].size=el.value;renderGuide();return;}
+  if(el.classList.contains('ds-cell')){
+    const r=+el.dataset.r,c=+el.dataset.c,v=coerce(c,el.value);
+    if(v!==el.value){el.value=v;}
+    st.records[r][c]=v;renderGuide();return;}
+  if(el.classList.contains('ds-new')){
+    const c=+el.dataset.c,v=coerce(c,el.value);
+    const rec=fields().map(()=>''); rec[c]=v; st.records.push(rec);
+    log('新增記錄 #'+st.records.length); renderDoc();renderGuide();focusCell(st.records.length-1,c);return;}
+});
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.classList.contains('dg-type')){
+    const r=+el.dataset.r; st.sel=r; st.rows[r].type=el.value;
+    st.rows[r].size = el.value==='文字'?'255' : (el.value==='數字'?'長整數' : (el.value==='自動編號'?'長整數':''));
+    log('設定「'+(st.rows[r].name||'(未命名)')+'」資料類型:'+el.value); render(); return;}
+  if(el.classList.contains('fp-size')){st.rows[st.sel].size=el.value;
+    log('設定「'+(st.rows[st.sel].name||'')+'」欄位大小:'+el.value);renderGuide();return;}
+});
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey&&(e.key==='s'||e.key==='S')){e.preventDefault();btn('qsave');return;}
+  if(e.ctrlKey&&e.altKey&&(e.key==='t'||e.key==='T')){teacherTool();return;}
+  if(e.key==='Enter'){
+    const el=document.activeElement;
+    if(el&&(el.classList.contains('ds-cell')||el.classList.contains('ds-new'))){
+      e.preventDefault();
+      const fs=fields().length;
+      if(el.classList.contains('ds-new')){const c=+el.dataset.c;
+        if(c+1<fs){const n=document.querySelector('.ds-new[data-c="'+(c+1)+'"]');if(n)n.focus();}
+      }else{
+        let r=+el.dataset.r,c=+el.dataset.c;
+        if(c+1<fs)focusCell(r,c+1);
+        else if(r+1<st.records.length)focusCell(r+1,0);
+        else{const n=document.querySelector('.ds-new[data-c="0"]');if(n)n.focus();}
+      }
+    }
+  }
+});
+
+/* ============================================================
+   7. 步驟指引
+   ============================================================ */
+function namesOk(){const fs=fields();return EX.fields.every((e,i)=>fs[i]&&fs[i].name.trim()===e.name);}
+function typesOk(){const fs=fields();return EX.fields.every((e,i)=>fs[i]&&fs[i].type===e.type);}
+function sizesOk(){const fs=fields();return EX.fields.every((e,i)=>fs[i]&&String(fs[i].size).trim()===e.size);}
+function cmp(a,b){const x=String(a).trim(),y=String(b).trim();
+  if(x!==''&&y!==''&&!isNaN(x)&&!isNaN(y))return Number(x)===Number(y);return x===y;}
+function dataOk(){return EX.data.every((row,i)=>{const r=st.records[i];return r&&row.every((v,c)=>cmp(r[c]||'',v));});}
+const STEPS=[
+ {t:'切換至「建立」索引標籤',d:'在功能區(Ribbon)最上一行,按「建立」。',h:'由左邊數起第三個索引標籤:檔案、常用、<b>建立</b>。',f:()=>st.visited.create||st.enteredDesign},
+ {t:'按「資料表設計」進入設計檢視',d:'在「資料表」群組中按「資料表設計」,畫面會出現「欄位名稱 / 資料類型」的表格。',h:'不要按「資料表」,要按旁邊有 📐 圖示的「資料表設計」。',f:()=>st.enteredDesign},
+ {t:'輸入 4 個欄位名稱及資料類型',d:'學生編號(文字)、姓名(文字)、身高(數字)、體重(數字)。',h:'在「欄位名稱」格輸入文字,然後在同一行右邊的「資料類型」下拉選單選擇類型。',f:()=>namesOk()&&typesOk()},
+ {t:'設定欄位大小',d:'學生編號 = 3、姓名 = 20、身高 = 整數、體重 = 整數。',h:'先按欄位左邊的列選取器(灰色小格)選取該欄位,下方「欄位屬性 → 欄位大小」便會顯示,再修改。文字欄位輸入數字;數字欄位在下拉選單選「整數」。',f:()=>sizesOk()},
+ {t:'設定「學生編號」為主索引鍵',d:'選取「學生編號」這一行,再按「資料表工具 · 設計」中的 🔑 主索引鍵。',h:'成功後「學生編號」左邊會出現 🔑 圖示。',f:()=>pkName()===EX.pk},
+ {t:'儲存資料表,命名為「'+EX.tableName+'」',d:'按左上角 💾(或 Ctrl+S),輸入資料表名稱後按「確定」。',h:'必須先設定主索引鍵才儲存,否則 Access 會問你是否自動建立主索引鍵(會加入多餘的「識別碼」欄位)。',f:()=>st.saved&&st.tableName===EX.tableName},
+ {t:'切換至資料工作表檢視',d:'按「檢視」按鈕,或狀態列右下角的 ▦ 圖示。',h:'右下角兩個小圖示:▦ 是資料工作表檢視,📐 是設計檢視。',f:()=>st.visitedDatasheet},
+ {t:'輸入 6 筆學生資料',d:'依下方表格逐格輸入,按 Tab 或 Enter 到下一格;最底 ✳ 的一行是新記錄。',h:'姓名不要多打空格;身高體重只可輸入數字。輸入錯了可按記錄左邊列選取器,再按「常用 → ❌刪除」。',f:()=>dataOk()},
+ {t:'按「完成練習,產生報告」',d:'檢查資料無誤後,按右上角綠色按鈕,下載報告並上傳給老師。',h:'',f:()=>false}
+];
+function renderGuide(){
+  const done=STEPS.map(s=>!!s.f());
+  let cur=done.findIndex(d=>!d); if(cur<0)cur=STEPS.length-1;
+  let h='<h3>📋 操作指引(共 '+STEPS.length+' 步)</h3>';
+  STEPS.forEach((s,i)=>{
+    h+='<div class="step '+(done[i]?'ok ':'')+(i===cur?'cur':'')+'"><div class="n">'+(done[i]?'✔':(i===cur?'▶':'○'))+' 步驟 '+(i+1)+':'+s.t+'</div>'+
+       '<div class="d">'+s.d+ (s.h?('<div class="hb"><button data-act="hint" data-arg="'+i+'" style="border:0;background:none;color:#a4373a;font-size:12px;padding:0">💡 顯示提示(扣 1 分)</button></div>'):'')+
+       (s.h&&st.hintShown[i]?'<div class="hintbox" style="display:block">'+s.h+'</div>':'')+'</div></div>';
+  });
+  h+='<div class="gsec"><b>📑 需要輸入的資料</b><table id="reftab"><tr><th>學生編號</th><th>姓名</th><th>身高</th><th>體重</th></tr>'+
+     EX.data.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</table></div>';
+  h+='<div class="gsec" style="font-size:12.5px"><b>目前進度:</b>'+done.filter(Boolean).length+' / '+(STEPS.length-1)+
+     ' 步 &nbsp;|&nbsp; 提示:'+st.hints+' 次 &nbsp;|&nbsp; 誤操作:'+st.errs+' 次</div>';
+  h+='<div class="gsec"><b>🖥 操作紀錄</b><div id="log">'+st.log.slice(-40).map(esc).reverse().join('<br>')+'</div></div>';
+  $('#guide').innerHTML=h;
+}
+
+/* ============================================================
+   8. 評分與報告
+   ============================================================ */
+function grade(){
+  const M=EX.marks,items=[],fs=fields();
+  items.push({l:'以「建立 → 資料表設計」進入設計檢視',y:st.viaDesignBtn?'正確':(st.enteredDesign?'以其他方式進入':'未進入設計檢視'),
+    c:'建立 → 資料表設計',g:st.viaDesignBtn?M.enter:(st.enteredDesign?Math.round(M.enter/2):0),f:M.enter});
+  EX.fields.forEach((e,i)=>{
+    const f=fs[i]||{name:'',type:'',size:''};
+    items.push({l:'欄位 '+(i+1)+' 名稱',y:f.name||'(空白)',c:e.name,g:(f.name||'').trim()===e.name?M.fname:0,f:M.fname});
+    items.push({l:'欄位 '+(i+1)+' 資料類型',y:f.type||'(未選)',c:e.type,g:f.type===e.type?M.ftype:0,f:M.ftype});
+    items.push({l:'欄位 '+(i+1)+' 欄位大小',y:String(f.size||'(空白)'),c:e.size,g:String(f.size).trim()===e.size?M.fsize:0,f:M.fsize});
+  });
+  items.push({l:'主索引鍵',y:pkName()||'(未設定)',c:EX.pk,g:pkName()===EX.pk?M.pk:0,f:M.pk});
+  items.push({l:'資料表名稱',y:st.saved?st.tableName:'(未儲存)',c:EX.tableName,
+    g:!st.saved?0:(st.tableName===EX.tableName?M.save:Math.round(M.save/2)),f:M.save});
+  EX.data.forEach((row,i)=>{
+    const rec=st.records[i]||[];let g=0;const per=M.record/row.length;
+    const y=row.map((v,c)=>{const a=(rec[c]==null?'':String(rec[c])).trim();if(cmp(a,v))g+=per;return a===''?'—':a;});
+    items.push({l:'第 '+(i+1)+' 筆記錄',y:y.join(' / '),c:row.join(' / '),g:Math.round(g*10)/10,f:M.record});
+  });
+  const full=items.reduce((a,b)=>a+b.f,0), raw=Math.round(items.reduce((a,b)=>a+b.g,0)*10)/10;
+  const dh=Math.min(st.hints*EX.penalty.hint,EX.penalty.hintMax);
+  const de=Math.min(st.errs*EX.penalty.err,EX.penalty.errMax);
+  const notes=[];
+  if(fs.length>EX.fields.length)notes.push('資料表中有多餘的欄位('+fs.map(f=>f.name).join('、')+'),應只有 '+EX.fields.length+' 個欄位。');
+  if(st.autoPK)notes.push('儲存時由 Access 自動加入了「識別碼」欄位作主索引鍵 → 表示儲存前未自行設定主索引鍵。');
+  if(st.records.length>EX.data.length)notes.push('記錄數目為 '+st.records.length+' 筆,多於要求的 '+EX.data.length+' 筆。');
+  if(!st.visitedDatasheet)notes.push('未曾切換至資料工作表檢視。');
+  return {items,full,raw,dh,de,final:Math.max(0,Math.round((raw-dh-de)*10)/10),notes};
+}
+function fmtDur(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+' 分 '+String(s%60).padStart(2,'0')+' 秒';}
+function hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(36).toUpperCase();}
+function vcode(d){const a=hash(d).padStart(8,'0');return 'ACC1-'+a.slice(0,4)+'-'+a.slice(4,8);}
+function b64e(s){return btoa(String.fromCharCode(...new TextEncoder().encode(s)));}
+function b64d(s){return new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)));}
+
+function finish(){
+  const done=STEPS.slice(0,-1).map(s=>!!s.f());
+  if(done.includes(false)){
+    dlg('尚未完成','仍有步驟未完成或未正確完成(步驟 '+done.map((d,i)=>d?null:i+1).filter(Boolean).join('、')+
+      ')。<br><br>你可以先返回修改;若現在提交,未完成部分將不會得分。',
+      [{label:'返回修改',fn:()=>{}},{label:'仍然提交',fn:showReport}]);
+  } else showReport();
+}
+function showReport(){
+  st.submits++;
+  const g=grade(), end=new Date(), dur=end-st.start;
+  const rep={ex:EX.id,title:EX.title,name:st.info.name,cls:st.info.cls,sid:st.info.sid,
+    start:st.start.toLocaleString('zh-HK',{hour12:false}),end:end.toLocaleString('zh-HK',{hour12:false}),
+    dur:fmtDur(dur),hints:st.hints,errs:st.errs,submits:st.submits,
+    raw:g.raw,full:g.full,dh:g.dh,de:g.de,final:g.final};
+  const digest=b64e(JSON.stringify(rep));
+  const code=vcode(digest);
+  const inner=reportHTML(rep,g,digest,code);
+  $('#rptCard').innerHTML=inner+
+    '<div class="tb"><button class="pri" id="dl">⬇ 下載報告檔(交給老師)</button>'+
+    '<button id="pr">🖨 列印 / 儲存為 PDF</button>'+
+    '<button id="cp">📋 複製摘要碼</button>'+
+    '<button id="bk">返回修改</button></div>';
+  $('#rptOverlay').style.display='flex';
+  const doc='<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><title>Access 練習報告 - '+esc(rep.name)+'</title>'+
+    '<style>body{font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif;margin:24px;color:#222}'+
+    'table.rpt{border-collapse:collapse;width:100%;font-size:12.5px;margin:8px 0}'+
+    'table.rpt th,table.rpt td{border:1px solid #bbb;padding:4px 6px}table.rpt th{background:#e8ecf1}'+
+    'table.rpt td.c{text-align:center}.bad{color:#b00}.good{color:#0a7a3f}.big{font-size:30px;font-weight:bold;color:#20476b}'+
+    '.dig{font-family:Consolas,monospace;font-size:11px;word-break:break-all;background:#f4f4f4;border:1px solid #ccc;padding:6px}'+
+    'h1{font-size:19px;color:#20476b}h2{font-size:15px;color:#20476b}</style></head><body>'+inner+'</body></html>';
+  $('#dl').onclick=()=>{
+    const blob=new Blob([doc],{type:'text/html;charset=utf-8'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='Access練習1_'+(rep.cls||'班別')+'_'+(rep.sid?rep.sid+'_':'')+(rep.name||'學生')+'.html';
+    a.click();
+  };
+  $('#pr').onclick=()=>{const w=window.open('','_blank');if(!w){alert('請允許彈出視窗,或改用「下載報告檔」。');return;}
+    w.document.write(doc);w.document.close();w.focus();setTimeout(()=>w.print(),400);};
+  $('#cp').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(digest+'\n'+code);alert('已複製摘要碼及驗證碼。');};
+  $('#bk').onclick=()=>{$('#rptOverlay').style.display='none';};
+}
+function reportHTML(rep,g,digest,code){
+  return '<h1>中三 電腦科 — 資料庫練習成績報告</h1>'+
+   '<div style="font-size:13.5px;line-height:1.7">'+
+   '<b>練習:</b>'+esc(rep.title)+'<br>'+
+   '<b>姓名:</b>'+esc(rep.name)+' &nbsp; <b>班別:</b>'+esc(rep.cls)+' &nbsp; <b>班號:</b>'+esc(rep.sid||'-')+'<br>'+
+   '<b>開始時間:</b>'+esc(rep.start)+' &nbsp; <b>完成時間:</b>'+esc(rep.end)+' &nbsp; <b>用時:</b>'+esc(rep.dur)+'<br>'+
+   '<b>使用提示:</b>'+rep.hints+' 次 &nbsp; <b>誤操作:</b>'+rep.errs+' 次 &nbsp; <b>提交次數:</b>'+rep.submits+'</div>'+
+   '<h2>一、詳細評分</h2><table class="rpt"><tr><th style="width:26%">評分項目</th><th>你的答案 / 操作</th><th>正確答案</th><th class="c" style="width:70px">得分</th></tr>'+
+   g.items.map(i=>'<tr><td>'+esc(i.l)+'</td><td class="'+(i.g===i.f?'good':'bad')+'">'+esc(i.y)+'</td><td>'+esc(i.c)+'</td><td class="c">'+i.g+' / '+i.f+'</td></tr>').join('')+
+   '<tr><th colspan="3">操作項目小計</th><th class="c">'+g.raw+' / '+g.full+'</th></tr>'+
+   '<tr><td colspan="3">提示扣分('+rep.hints+' × '+EX.penalty.hint+',上限 '+EX.penalty.hintMax+')</td><td class="c">- '+g.dh+'</td></tr>'+
+   '<tr><td colspan="3">誤操作扣分('+rep.errs+' × '+EX.penalty.err+',上限 '+EX.penalty.errMax+')</td><td class="c">- '+g.de+'</td></tr>'+
+   '</table>'+
+   '<div class="big">最終得分:'+g.final+' / '+g.full+' &nbsp;('+Math.round(g.final/g.full*100)+'%)</div>'+
+   (g.notes.length?'<h2>二、老師備註 / 需注意之處</h2><ul style="font-size:13px">'+g.notes.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'<h2>二、老師備註</h2><div style="font-size:13px">操作正常,沒有特別需要注意的地方。</div>')+
+   '<h2>三、防偽驗證</h2><div style="font-size:12.5px">驗證碼:<b>'+code+'</b>(老師可在練習檔按 Ctrl+Alt+T 驗證)</div>'+
+   '<div style="font-size:12px;margin-top:4px">摘要碼:</div><div class="dig">'+digest+'</div>'+
+   '<h2>四、操作紀錄(最後 25 項)</h2><div style="font-size:11.5px;line-height:1.5;color:#555">'+st.log.slice(-25).map(esc).join('<br>')+'</div>';
+}
+
+/* ============================================================
+   9. 老師驗證工具 (Ctrl+Alt+T)
+   ============================================================ */
+function teacherTool(){
+  const L=$('#layer');
+  L.innerHTML='<div class="dlg" style="min-width:520px"><div class="dh">老師專用:報告驗證工具</div><div class="db">'+
+   '請貼上學生報告中的「摘要碼」:<div style="margin:5px 0"><textarea id="tvd" style="width:100%;height:80px;font-family:Consolas,monospace;font-size:11px"></textarea></div>'+
+   '報告上的驗證碼:<div style="margin:5px 0"><input id="tvc" type="text" placeholder="ACC1-XXXX-XXXX"></div>'+
+   '<div id="tvr" style="font-size:13px"></div></div>'+
+   '<div class="df"><button id="tvgo">驗證</button><button id="tvx">關閉</button></div></div>';
+  L.style.display='flex';
+  $('#tvx').onclick=()=>{L.style.display='none';};
+  $('#tvgo').onclick=()=>{
+    const d=$('#tvd').value.trim(),c=$('#tvc').value.trim().toUpperCase();
+    try{
+      const o=JSON.parse(b64d(d)),ok=(vcode(d)===c);
+      $('#tvr').innerHTML='<div style="margin-top:8px;padding:8px;background:'+(ok?'#eaf7ee':'#fdecec')+';border:1px solid '+(ok?'#8c8':'#e99')+'">'+
+        '<b>'+(ok?'✔ 驗證碼相符,報告內容未被修改':'✘ 驗證碼不符,報告可能被修改')+'</b><br>'+
+        '姓名:'+esc(o.name)+'  班別:'+esc(o.cls)+'  班號:'+esc(o.sid||'-')+'<br>'+
+        '練習:'+esc(o.title)+'<br>最終得分:<b>'+o.final+' / '+o.full+'</b>(操作分 '+o.raw+',提示扣 '+o.dh+',誤操作扣 '+o.de+')<br>'+
+        '用時:'+esc(o.dur)+'  提示 '+o.hints+' 次  誤操作 '+o.errs+' 次  提交 '+o.submits+' 次<br>'+
+        '開始:'+esc(o.start)+'  完成:'+esc(o.end)+'</div>';
+    }catch(e){$('#tvr').innerHTML='<div style="color:#b00;margin-top:8px">摘要碼格式錯誤,無法解讀。</div>';}
+  };
+}
+
+/* ============================================================
+   10. 啟動
+   ============================================================ */
+$('#btnStart').onclick=()=>{
+  const n=$('#s_name').value.trim(),c=$('#s_cls').value.trim();
+  if(!n||!c){alert('請填寫姓名及班別。');return;}
+  st.info={name:n,cls:c,sid:$('#s_id').value.trim()};
+  st.start=new Date();
+  $('#start').style.display='none';
+  $('#topinfo').textContent='學生:'+n+'('+c+(st.info.sid?' '+st.info.sid:'')+')';
+  log('開始練習');setStatus('請按功能區的「建立」索引標籤。');
+  render();
+  setInterval(()=>{const s=Math.floor((Date.now()-st.start)/1000);
+    $('#timer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');},1000);
+};
+render();
+</script>
+</body>
+</html>
