@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Access 綜合練習(練習一 + 練習二)滿分 40 分</title>
+<script>
+window.onerror=function(m,s,l,c){var e=document.getElementById('err');
+ if(e){e.style.display='block';e.textContent='⚠ 程式錯誤:'+m+'(第 '+l+' 行,第 '+c+' 字)';}return false;};
+</script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;font-size:14px;background:#eceff3;color:#222}
+button{font-family:inherit;cursor:pointer}
+#err{display:none;background:#ffe8e8;border:2px solid #c34;color:#901;padding:9px 14px;font-weight:bold}
+header{background:#7c2529;color:#fff;padding:8px 14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+header h1{margin:0;font-size:16px}
+header .sp{flex:1}
+header .kv{font-size:12.5px;background:rgba(255,255,255,.15);padding:3px 9px;border-radius:4px}
+header button{border:0;border-radius:4px;padding:7px 12px;font-size:13px;background:#a4494e;color:#fff}
+header button.pri{background:#2e8b57;font-weight:bold}
+main{padding:12px 14px 40px;max-width:1500px;margin:0 auto}
+.card{background:#fff;border:1px solid #ccd3db;border-radius:6px;padding:12px 14px;margin-bottom:12px}
+.card h2{margin:0 0 8px;font-size:15px;color:#7c2529;border-bottom:1px solid #e4e8ee;padding-bottom:5px}
+.split{display:flex;gap:12px;align-items:flex-start}
+.left{flex:1;min-width:0}
+.right{width:340px;flex:none}
+@media(max-width:1150px){.split{flex-wrap:wrap}.right{width:100%}}
+input[type=text],input[type=number],select{font-family:inherit;font-size:13px;padding:4px 6px;border:1px solid #99a;border-radius:3px}
+label.f{display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;font-size:13px}
+/* ===== 目前任務面板 ===== */
+#cur{background:#eef9f1;border:2px solid #2e8b57;border-radius:6px;padding:10px 12px;margin-bottom:12px}
+#cur .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#cur .no{background:#2e8b57;color:#fff;border-radius:4px;padding:2px 8px;font-size:12.5px;font-weight:bold}
+#cur .ti{font-size:15px;font-weight:bold;color:#175c34;flex:1;min-width:200px}
+#cur .mk{font-size:12.5px;color:#7c2529;font-weight:bold}
+#cur button{border:1px solid #b9884a;background:#fff8e5;border-radius:4px;padding:5px 11px;font-size:12.5px}
+#cur .dt{margin-top:8px;background:#fff;border:1px solid #cfe3d6;border-radius:4px;padding:7px 9px;font-size:12.5px;line-height:1.7}
+#cur .hh{margin-top:7px;background:#fff8e5;border:1px solid #e6cf90;border-radius:4px;padding:7px 9px;font-size:12.5px;line-height:1.6;display:none}
+/* ===== 模擬 Access 視窗 ===== */
+#acc{border:1px solid #9aa4b0;border-radius:5px;overflow:hidden;background:#fff;user-select:none}
+.tbar{background:#7c2529;color:#fff;padding:4px 10px;font-size:12.5px;display:flex;gap:10px;align-items:center}
+.tbar .qa{background:rgba(255,255,255,.18);border-radius:3px;padding:1px 6px;cursor:pointer}
+.tabs{display:flex;background:#f0f2f5;border-bottom:1px solid #cdd4dd}
+.tabs div{padding:6px 15px;font-size:13px;cursor:pointer;border-right:1px solid #dde2e8}
+.tabs div.on{background:#fff;font-weight:bold;color:#7c2529;border-bottom:2px solid #7c2529}
+.ribbon{background:#fbfcfd;border-bottom:1px solid #cdd4dd;padding:8px 10px;display:flex;gap:6px;flex-wrap:wrap;min-height:56px;position:relative}
+.rb{border:1px solid #ccd3db;background:#fff;border-radius:4px;padding:7px 11px;font-size:12.5px;min-width:62px;text-align:center;cursor:pointer}
+.rb:hover{background:#f3e6e7;border-color:#c39da0}
+.rb b{display:block;font-size:16px;line-height:1.1}
+.abody{display:flex;min-height:340px}
+.nav{width:172px;flex:none;background:#f6f7f9;border-right:1px solid #cdd4dd;font-size:12.5px;padding:6px}
+.nav .ttl{font-weight:bold;color:#555;border-bottom:1px solid #dde;padding-bottom:4px;margin-bottom:5px}
+.nav .grp{margin-top:6px;color:#666}
+.nav .obj{padding:3px 5px;margin:2px 0 2px 10px;border-radius:3px;cursor:pointer;background:#fff;border:1px solid #dde2e8}
+.nav .obj:hover{background:#eaf1fa}
+.nav .obj.on{background:#dceaf8;border-color:#a8c4e0}
+.work{flex:1;padding:10px;min-width:0;overflow:auto;background:#fff}
+.sbar{background:#e9ecf1;border-top:1px solid #cdd4dd;font-size:12px;padding:3px 10px;color:#556;display:flex;gap:14px}
+.startpane{padding:26px;text-align:center;background:#f7f8fa}
+.tile{display:inline-block;width:150px;border:2px solid #cdd4dd;border-radius:6px;background:#fff;padding:16px 8px;margin:6px;cursor:pointer}
+.tile:hover{border-color:#7c2529;background:#fdf5f5}
+.tile b{display:block;font-size:34px}
+table.dg,table.ds{border-collapse:collapse;font-size:12.5px}
+table.dg{width:100%}
+table.dg th,table.dg td,table.ds th,table.ds td{border:1px solid #c4ccd5;padding:0}
+table.dg th,table.ds th{background:#e6e9ee;padding:4px 6px;font-weight:bold;text-align:left}
+table.dg td.sel,table.dg th.sel{width:26px;text-align:center;background:#eef0f3;cursor:pointer;font-size:12px}
+table.dg tr.selr td.sel{background:#cbd8e6}
+table.dg input,table.dg select,table.ds input{width:100%;border:0;padding:4px 6px;font-family:inherit;font-size:12.5px;background:transparent}
+table.dg input:focus,table.ds input:focus,table.dg select:focus{outline:2px solid #7c2529;background:#fffbea}
+table.ds{width:100%;margin-top:2px}
+table.ds td{background:#fff}
+table.ds tr.newr td{background:#fbfbf2}
+table.ds td.ck{text-align:center;padding:3px}
+table.ds td.ck input{width:auto}
+.prop{margin-top:10px;border:1px solid #c4ccd5}
+.prop .ph{background:#e6e9ee;padding:4px 8px;font-size:12.5px;font-weight:bold}
+.prop table{border-collapse:collapse;width:100%;font-size:12.5px}
+.prop td{border:1px solid #dde2e8;padding:3px 6px}
+.prop td.k{width:130px;background:#f7f8fa}
+.prop input{border:1px solid #ccd3db;padding:2px 5px;width:120px}
+.formv{max-width:430px;border:1px solid #c4ccd5;background:#f4f6f9;padding:12px}
+.formv .fh{background:#7c2529;color:#fff;padding:6px 10px;font-size:13.5px;margin:-12px -12px 10px}
+.formv .r{display:flex;gap:8px;align-items:center;margin-bottom:7px}
+.formv .r span{width:86px;font-size:12.5px;text-align:right;color:#333}
+.formv .r input[type=text]{flex:1}
+.fnav{margin-top:10px;display:flex;gap:6px;align-items:center;font-size:12px;color:#555;flex-wrap:wrap}
+.fnav button{border:1px solid #b0b8c2;background:#fff;border-radius:3px;padding:3px 8px;font-size:12px}
+.menu{position:absolute;top:52px;left:10px;background:#fff;border:1px solid #9aa4b0;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:40;font-size:13px}
+.menu div{padding:7px 16px;cursor:pointer}
+.menu div:hover{background:#f3e6e7}
+/* ===== 任務清單 ===== */
+.tk{border:1px solid #dde2e8;border-radius:4px;padding:5px 8px;margin-bottom:4px;font-size:12.5px;background:#fafbfc;line-height:1.5}
+.tk.now{border-color:#2e8b57;background:#eef9f1;font-weight:bold}
+.tk.ok{background:#f3f7f3;color:#5a6b5e}
+.tk .m{float:right;font-size:11.5px;color:#7c2529}
+.tk .st{margin-right:4px}
+.spec{border-collapse:collapse;width:100%;font-size:12px;margin-top:4px}
+.spec th,.spec td{border:1px solid #c9d0d8;padding:3px 5px}
+.spec th{background:#e6e9ee}
+.spec td.c{text-align:center}
+details{font-size:12.5px}
+details summary{cursor:pointer;font-weight:bold;color:#7c2529;padding:3px 0}
+.prog{height:14px;background:#e5eaf0;border:1px solid #c4ccd5;border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;background:#2e8b57;transition:.3s}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+#toast div{background:#333c46;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;box-shadow:0 3px 10px rgba(0,0,0,.3);max-width:88vw}
+#toast div.ok{background:#1e7a45}#toast div.bad{background:#a4373a}#toast div.warn{background:#8a6300}
+#layer{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:60;padding:14px}
+.dlg{background:#fff;border-radius:6px;width:100%;max-width:560px;max-height:92vh;overflow:auto}
+.dlg .h{background:#7c2529;color:#fff;padding:7px 12px;font-size:14px;font-weight:bold}
+.dlg .b{padding:14px}
+.dlg .f{padding:10px 14px;border-top:1px solid #e4e8ee;text-align:right}
+.dlg .f button{border:1px solid #8fa2b6;background:#f2f6fa;border-radius:4px;padding:6px 16px;font-size:13px;margin-left:6px}
+.dlg .f button.pri{background:#7c2529;color:#fff;border-color:#7c2529;font-weight:bold}
+.wizbox{display:flex;gap:8px;align-items:center}
+.wizlist{flex:1;border:1px solid #99a;height:150px;overflow:auto;background:#fff;font-size:12.5px}
+.wizlist div{padding:3px 6px;cursor:pointer}
+.wizlist div.on{background:#7c2529;color:#fff}
+.wizbtn{display:flex;flex-direction:column;gap:4px}
+.wizbtn button{width:38px;border:1px solid #99a;background:#f2f6fa;border-radius:3px;padding:3px 0}
+.rep table{border-collapse:collapse;width:100%;font-size:12.5px}
+.rep th,.rep td{border:1px solid #c4ccd5;padding:4px 6px}
+.rep th{background:#e6e9ee}
+.rep td.c{text-align:center}
+.dig{font-family:Consolas,monospace;font-size:10.5px;word-break:break-all;background:#f4f4f4;border:1px solid #ccc;padding:6px;margin-top:4px}
+.code{font-family:Consolas,monospace;font-size:19px;font-weight:bold;letter-spacing:2px;color:#7c2529;background:#fdf5f5;border:2px dashed #c39da0;padding:8px;text-align:center}
+</style>
+</head>
+<body>
+<div id="err"></div>
+
+<header>
+ <h1>🗄️ Access 綜合練習(練習一 + 練習二)</h1>
+ <span class="kv" id="hwho">未開始</span>
+ <span class="kv" id="htime">⏱ 00:00</span>
+ <span class="kv" id="hsc">得分 0 / 40</span>
+ <span class="kv" id="hhe">提示 0 ｜ 誤操作 0</span>
+ <span class="sp"></span>
+ <button class="pri" id="bSub">✅ 完成並產生報告</button>
+ <button id="bReset">↺ 重新開始</button>
+</header>
+
+<main>
+
+<div class="card" id="idcard">
+ <h2>一、開始之前:填寫個人資料</h2>
+ <div>
+  <label class="f">班別 <input type="text" id="iCls" size="5" placeholder="3A"></label>
+  <label class="f">班號 <input type="text" id="iSid" size="4" placeholder="12"></label>
+  <label class="f">姓名 <input type="text" id="iNm" size="10" placeholder="陳大文"></label>
+  <button class="pri" id="bGo" style="background:#2e8b57;color:#fff;border:0;border-radius:4px;padding:7px 18px;font-weight:bold">▶ 開始練習</button>
+  <button id="bDemo" style="border:1px solid #8fa2b6;background:#f2f6fa;border-radius:4px;padding:7px 12px">🎬 一鍵示範(教師用,不計分)</button>
+ </div>
+ <div style="font-size:12.5px;color:#666;line-height:1.7;margin-top:6px">
+  全部 18 個任務按次序完成,系統自動評分,<b>分數全部為整數</b>。<b>每一步需要輸入什麼,都會顯示在下面綠色的「目前任務」欄。</b><br>
+  ⏱ 建議 25 分鐘 ｜ 💡 <b>每按一次提示扣 1 分</b>(同一任務只扣一次,最多扣 5 分) ｜ ✘ <b>每次誤操作扣 1 分</b>(最多扣 5 分)<br>
+  <span style="color:#8a6300">※ 想清楚才按功能區的按鈕;1.5 秒內重複同一個錯誤只算一次。</span>
+ </div>
+</div>
+
+<div class="split">
+ <div class="left">
+  <div id="cur"></div>
+  <div id="acc">
+   <div class="tbar">
+     <span>🗄️ <b id="tbTitle">Access</b></span>
+     <span class="qa" data-a="save">💾 儲存</span>
+     <span class="qa" data-a="nothing">↶</span>
+     <span class="qa" data-a="nothing">↷</span>
+   </div>
+   <div class="tabs" id="tabs"></div>
+   <div class="ribbon" id="ribbon"></div>
+   <div class="abody">
+     <div class="nav" id="nav"></div>
+     <div class="work" id="work"></div>
+   </div>
+   <div class="sbar"><span id="sb1">就緒</span><span style="flex:1"></span><span id="sb2"></span></div>
+  </div>
+ </div>
+
+ <div class="right">
+  <div class="card">
+   <h2>任務清單(共 40 分)</h2>
+   <div class="prog" style="margin-bottom:7px"><i id="pbar" style="width:0%"></i></div>
+   <div id="tasks"></div>
+  </div>
+  <div class="card">
+   <details>
+    <summary>📋 完整資料規格(需要時才展開)</summary>
+    <div style="margin-top:6px;color:#444">資料庫:<b>中三社團</b> ｜ 資料表:<b>成員資料</b> ｜ 表單:<b>成員資料表單</b></div>
+    <table class="spec">
+     <tr><th>欄位名稱</th><th>資料類型</th><th>特別設定</th></tr>
+     <tr><td>成員編號</td><td>簡短文字</td><td class="c">主索引鍵 🔑</td></tr>
+     <tr><td>姓名</td><td>簡短文字</td><td class="c">欄位大小 20</td></tr>
+     <tr><td>班別</td><td>簡短文字</td><td class="c">—</td></tr>
+     <tr><td>加入日期</td><td>日期/時間</td><td class="c">—</td></tr>
+     <tr><td>會費</td><td>貨幣</td><td class="c">—</td></tr>
+     <tr><td>聯絡電話</td><td>簡短文字</td><td class="c">B 部新增</td></tr>
+     <tr><td>是否繳費</td><td>是/否</td><td class="c">B 部新增</td></tr>
+    </table>
+    <table class="spec">
+     <tr><th>成員編號</th><th>姓名</th><th>班別</th><th>加入日期</th><th>會費</th><th>聯絡電話</th><th>繳費</th></tr>
+     <tr><td>S001</td><td>陳大文</td><td>3A</td><td>2025/9/1</td><td>50</td><td class="c">—</td><td class="c">—</td></tr>
+     <tr><td>S002</td><td>李小明</td><td>3B</td><td>2025/9/2</td><td>50</td><td class="c">—</td><td class="c">—</td></tr>
+     <tr><td>S003</td><td>王志強</td><td>3C</td><td>2025/9/3</td><td>50</td><td>61234567</td><td class="c">✔ 勾選</td></tr>
+    </table>
+    <div style="color:#777;margin-top:5px">※ 最後一筆(S003)必須用<b>表單</b>輸入。</div>
+   </details>
+  </div>
+ </div>
+</div>
+</main>
+
+<div id="toast"></div>
+<div id="layer"></div>
+
+<script>
+"use strict";
+/* ====== 扣分設定(整數,教師可自行調整這 4 行) ====== */
+var HINT_PEN=1, HINT_CAP=5;   /* 每次提示扣 1 分,最多扣 5 分 */
+var ERR_PEN =1, ERR_CAP =25;   /* 每次誤操作扣 1 分,最多扣 25 分 */
+
+/* ================= 工具 ================= */
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function hash(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(36).toUpperCase();}
+function codeBody(d){return hash(d).padStart(8,'0').slice(0,8);}
+function b64e(s){return btoa(String.fromCharCode.apply(null,new TextEncoder().encode(s)));}
+function nm(s){return String(s==null?'':s).replace(/\s+/g,'').trim();}
+function nd(s){var t=nm(s).replace(/年/g,'/').replace(/月/g,'/').replace(/日/g,'').replace(/[-.]/g,'/');
+ t=t.replace(/\/0(\d)/g,'/$1');return t.replace(/\/+$/,'');}
+function num(s){var t=String(s==null?'':s).replace(/[^\d.\-]/g,'');return t===''?NaN:Number(t);}
+function two(n){return String(n).padStart(2,'0');}
+function toast(t,c){var d=document.createElement('div');d.className=c||'';d.textContent=t;$('#toast').appendChild(d);
+ setTimeout(function(){d.style.transition='.4s';d.style.opacity='0';setTimeout(function(){d.remove();},420);},2600);}
+var lastWarn=0;
+function warnOnce(m){var t=Date.now();if(t-lastWarn<1800)return;lastWarn=t;toast(m,'warn');}
+
+/* ================= 規格 ================= */
+var TYPES=['','簡短文字','長文字','數字','日期/時間','貨幣','自動編號','是/否','超連結','附件','查閱精靈'];
+var EXPF=[{n:'成員編號',t:'簡短文字'},{n:'姓名',t:'簡短文字'},{n:'班別',t:'簡短文字'},
+ {n:'加入日期',t:'日期/時間'},{n:'會費',t:'貨幣'},{n:'聯絡電話',t:'簡短文字'},{n:'是否繳費',t:'是/否'}];
+var PHONE='61234567';
+var EXP=[
+ {'成員編號':'S001','姓名':'陳大文','班別':'3A','加入日期':'2025/9/1','會費':50},
+ {'成員編號':'S002','姓名':'李小明','班別':'3B','加入日期':'2025/9/2','會費':50},
+ {'成員編號':'S003','姓名':'王志強','班別':'3C','加入日期':'2025/9/3','會費':50,tel:PHONE,paid:true}];
+
+/* ================= 任務(含所需資料) ================= */
+var STEPS=[
+{id:'A1',m:2,t:'按「空白資料庫」開始建立新資料庫',
+ d:'在 Access 開始畫面按左邊的大圖示 <b>🗄️ 空白資料庫</b>。',
+ h:'開始畫面中間第一個大方格就是「空白資料庫」。',
+ allow:['blankdb'],chk:function(){return G.dlg==='newdb';}},
+{id:'A2',m:2,t:'檔案名稱輸入「中三社團」,按「建立」',
+ d:'檔案名稱:<b>中三社團</b>(不用打 .accdb)→ 按「建立」<br><span style="color:#777">※ 若按錯「取消」,可再按一次「空白資料庫」。</span>',
+ h:'把對話框內原本的「資料庫1」刪去,改為「中三社團」,再按右下角「建立」。',
+ allow:['createdb','blankdb'],chk:function(){return G.db==='中三社團';}},
+{id:'A3',m:2,t:'在「建立」索引標籤按「資料表設計」',
+ d:'功能區:<b>建立</b> 索引標籤 → <b>📐 資料表設計</b><br><span style="color:#777">※ 不要按「資料表」,那個會直接開資料工作表檢視。</span>',
+ h:'先按上方「建立」,再按「資料表設計」,會開啟空白的設計檢視。',
+ allow:['tabledesign','newtable'],chk:function(){return G.screen==='design';}},
+{id:'A4',m:3,t:'輸入 5 個欄位名稱',
+ d:'在「欄位名稱」欄由上而下輸入:<table class="spec"><tr><th>列</th><th>欄位名稱</th></tr>'+
+   '<tr><td class="c">1</td><td>成員編號</td></tr><tr><td class="c">2</td><td>姓名</td></tr>'+
+   '<tr><td class="c">3</td><td>班別</td></tr><tr><td class="c">4</td><td>加入日期</td></tr>'+
+   '<tr><td class="c">5</td><td>會費</td></tr></table>',
+ h:'一列一個欄位名稱,順序不可調亂;打錯可直接改。',
+ allow:[],chk:function(){return fnamesOk(5);}},
+{id:'A5',m:4,t:'設定 5 個欄位的資料類型',
+ d:'按每列「資料類型」的下拉選單:<table class="spec"><tr><th>欄位</th><th>資料類型</th></tr>'+
+   '<tr><td>成員編號</td><td>簡短文字</td></tr><tr><td>姓名</td><td>簡短文字</td></tr>'+
+   '<tr><td>班別</td><td>簡短文字</td></tr><tr><td>加入日期</td><td><b>日期/時間</b></td></tr>'+
+   '<tr><td>會費</td><td><b>貨幣</b></td></tr></table>',
+ h:'加入日期選「日期/時間」,會費選「貨幣」,其餘三個保持「簡短文字」。',
+ allow:[],chk:function(){return ftypesOk(5);}},
+{id:'A6',m:3,t:'把「成員編號」設為主索引鍵 🔑',
+ d:'① 按 <b>成員編號</b> 左邊的灰色列選取器(整列變色)<br>② 按 <b>設計</b> 索引標籤 → <b>🔑 主索引鍵</b>',
+ h:'一定要先選取整列,否則 Access 不知道你要為哪個欄位設主索引鍵。',
+ allow:['pk'],chk:function(){return G.pk===0;}},
+{id:'A7',m:2,t:'儲存資料表,名稱為「成員資料」',
+ d:'按左上角 <b>💾 儲存</b> → 資料表名稱輸入 <b>成員資料</b> → 確定<br><span style="color:#777">※ 若按錯「取消」,可再按一次「💾 儲存」。</span>',
+ h:'左上角快速存取工具列的 💾 就是儲存。',
+ allow:['save','saveok'],chk:function(){return G.tabName==='成員資料';}},
+{id:'A8',m:2,t:'切換到資料工作表檢視,輸入 S001、S002 兩筆記錄',
+ d:'<b>常用</b> → <b>檢視 ▾</b> → <b>資料工作表檢視</b>,然後輸入:'+
+   '<table class="spec"><tr><th>成員編號</th><th>姓名</th><th>班別</th><th>加入日期</th><th>會費</th></tr>'+
+   '<tr><td>S001</td><td>陳大文</td><td>3A</td><td>2025/9/1</td><td>50</td></tr>'+
+   '<tr><td>S002</td><td>李小明</td><td>3B</td><td>2025/9/2</td><td>50</td></tr></table>',
+ h:'日期打 2025/9/1 即可;會費只需打 50,不用打 $。',
+ allow:['view:datasheet'],chk:function(){return G.screen==='datasheet'&&recOk(0)&&recOk(1);}},
+{id:'B1',m:2,t:'切換回設計檢視,準備新增欄位',
+ d:'<b>常用</b> → <b>檢視 ▾</b> → <b>設計檢視</b>',
+ h:'「檢視」按鈕在「常用」索引標籤最左邊。',
+ allow:['view:design'],chk:function(){return G.screen==='design';}},
+{id:'B2',m:3,t:'新增欄位「聯絡電話」',
+ d:'第 <b>6</b> 列 → 欄位名稱:<b>聯絡電話</b>　資料類型:<b>簡短文字</b>',
+ h:'在會費下面那一列(第 6 列)輸入。',
+ allow:[],chk:function(){return fnamesOk(6)&&ftypesOk(6);}},
+{id:'B3',m:3,t:'新增欄位「是否繳費」',
+ d:'第 <b>7</b> 列 → 欄位名稱:<b>是否繳費</b>　資料類型:<b>是/否</b>',
+ h:'資料類型選單中的「是/否」(Yes/No),用來儲存打勾的資料。',
+ allow:[],chk:function(){return fnamesOk(7)&&ftypesOk(7);}},
+{id:'B4',m:2,t:'把「姓名」的欄位大小改為 20',
+ d:'① 按 <b>姓名</b> 那列的列選取器<br>② 下方「欄位屬性」→ <b>欄位大小</b>:255 改為 <b>20</b>',
+ h:'欄位屬性只會顯示目前選取欄位的設定,所以要先選取「姓名」那一列。',
+ allow:[],chk:function(){return G.fields[1]&&Number(G.fields[1].size)===20;}},
+{id:'B5',m:1,t:'儲存資料表的修改',
+ d:'再按一次 <b>💾 儲存</b>(已有名稱,不會再問你名稱)',
+ h:'左上角的 💾。',
+ allow:['save'],chk:function(){return G.saved===true;}},
+{id:'B6',m:2,t:'在「建立」索引標籤按「表單精靈」',
+ d:'① 左邊導覽窗格按一下資料表 <b>成員資料</b><br>② <b>建立</b> → <b>🧙 表單精靈</b><br><span style="color:#777">※ 取消了可以再按一次。</span>',
+ h:'不要按「表單」,要按「表單精靈」。',
+ allow:['formwizard','formauto'],chk:function(){return G.dlg==='wiz';}},
+{id:'B7',m:2,t:'把全部 7 個欄位加入「選定的欄位」,按「下一步」',
+ d:'按中間的 <b>≫</b> 一次把 7 個欄位全部移到右邊(成員編號、姓名、班別、加入日期、會費、聯絡電話、是否繳費)→ <b>下一步</b>',
+ h:'「≫」是全部移過去,「>」是一次移一個。',
+ allow:['formwizard','wiz:next','wiz:back','wiz:finish'],chk:function(){return G.wiz&&G.wiz.step===2;}},
+{id:'B8',m:1,t:'版面配置選「單欄式」,按「下一步」',
+ d:'版面配置:<b>單欄式</b> → <b>下一步</b>',
+ h:'單欄式(Columnar)是第一個選項,每頁顯示一筆記錄。',
+ allow:['formwizard','wiz:next','wiz:back','wiz:finish'],chk:function(){return G.wiz&&G.wiz.step===3&&G.wiz.layout==='單欄式';}},
+{id:'B9',m:2,t:'表單標題輸入「成員資料表單」,按「完成」',
+ d:'表單標題:<b>成員資料表單</b> → 按 <b>完成</b><br><span style="color:#777">※ 若不小心按了「取消」,重新按「建立」→「表單精靈」再做一次即可。</span>',
+ h:'標題就是表單的名稱,要完全一樣:成員資料表單。',
+ allow:['formwizard','wiz:next','wiz:back','wiz:finish'],chk:function(){return G.form!==null;}},
+{id:'B10',m:2,t:'用表單新增第 3 筆記錄',
+ d:'按 <b>▶* 新增空白記錄</b>,輸入以下資料後按 <b>💾 儲存記錄</b>:'+
+   '<table class="spec"><tr><th>欄位</th><th>要輸入的內容</th></tr>'+
+   '<tr><td>成員編號</td><td>S003</td></tr><tr><td>姓名</td><td>王志強</td></tr>'+
+   '<tr><td>班別</td><td>3C</td></tr><tr><td>加入日期</td><td>2025/9/3</td></tr>'+
+   '<tr><td>會費</td><td>50</td></tr><tr><td>聯絡電話</td><td><b>'+PHONE+'</b></td></tr>'+
+   '<tr><td>是否繳費</td><td><b>✔ 勾選</b></td></tr></table>',
+ h:'先按「▶* 新增空白記錄」才輸入;「是否繳費」用滑鼠點一下方格便會出現 ✔。',
+ allow:['formsave'],chk:function(){return recOk(2);}}
+];
+var FULL=40;
+
+/* ================= 狀態 ================= */
+var G={};
+function reset(){
+ G={started:false,done:false,demo:false,cur:0,hints:0,errs:0,hinted:{},t0:0,t1:0,
+  nm:'',cls:'',sid:'',showHint:false,
+  screen:'start',tab:'檔案',menu:null,dlg:null,dlgVal:'',
+  db:null,tabName:null,saved:false,fields:[],pk:-1,selRow:-1,
+  records:[],wiz:null,form:null,fIdx:0,fNew:{},navSel:''};
+ STEPS.forEach(function(s){s.ok=false;});
+ lastErr={k:'',t:0};
+}
+function got(){var n=0;STEPS.forEach(function(s){if(s.ok)n+=s.m;});return Math.round(n);}
+function dedH(){return Math.min(G.hints*HINT_PEN,HINT_CAP);}
+function dedE(){return Math.min(G.errs*ERR_PEN,ERR_CAP);}
+function dedAll(){return dedH()+dedE();}
+function finalScore(){return Math.max(0,Math.round(got()-dedAll()));}
+
+/* ================= 檢查 ================= */
+function fnamesOk(n){for(var i=0;i<n;i++){if(!G.fields[i]||nm(G.fields[i].name)!==EXPF[i].n)return false;}return true;}
+function ftypesOk(n){for(var i=0;i<n;i++){if(!G.fields[i]||G.fields[i].type!==EXPF[i].t)return false;}return true;}
+function recOk(i){
+ var r=G.records[i],e=EXP[i];if(!r||!e)return false;
+ if(nm(r['成員編號']).toUpperCase()!==e['成員編號'])return false;
+ if(nm(r['姓名'])!==e['姓名'])return false;
+ if(nm(r['班別']).toUpperCase()!==e['班別'])return false;
+ if(nd(r['加入日期'])!==e['加入日期'])return false;
+ if(num(r['會費'])!==e['會費'])return false;
+ if(e.tel&&nm(r['聯絡電話'])!==e.tel)return false;
+ if(e.paid&&r['是否繳費']!==true)return false;
+ return true;
+}
+/* soft=true:打字中,只更新面板,不重畫工作區(保持輸入焦點) */
+function tryCheck(soft){
+ var s=STEPS[G.cur];
+ if(s&&!G.done&&s.chk()){
+  s.ok=true;G.cur++;G.showHint=false;
+  toast('✔ 完成:'+s.t+'(+'+s.m+' 分)','ok');
+  if(G.cur>=STEPS.length)toast('🎉 18 個任務全部完成!請按右上角「完成並產生報告」','ok');
+ }
+ if(soft){renderCur();renderTasks();renderNav();scheduleRefresh();}
+ else render();
+}
+var refreshT=null;
+function scheduleRefresh(){
+ clearTimeout(refreshT);
+ refreshT=setTimeout(function(){
+  var ae=document.activeElement;
+  if(G.dlg)return;
+  if(ae&&$('#work')&&$('#work').contains(ae))return;
+  renderWork();
+ },400);
+}
+
+/* ================= 動作 ================= */
+var NEUT={tab:1,menu:1,selrow:1,nav:1,dlgcancel:1,prev:1,next:1,formnew:1,
+ 'wiz:add':1,'wiz:addall':1,'wiz:rem':1,'wiz:remall':1,'wiz:layout':1};
+var lastErr={k:'',t:0};
+function badAct(msg){
+ var now=Date.now();
+ if(msg===lastErr.k&&now-lastErr.t<1500){toast('✘ '+msg,'bad');render();return;}
+ lastErr={k:msg,t:now};
+ G.errs++;
+ toast('✘ '+msg+'(扣 '+ERR_PEN+' 分)','bad');
+ render();
+}
+function act(a,p){
+ if(a==='nothing'){toast('這個按鈕在本練習不需要用到。','warn');return;}
+ if(!G.started){toast('請先在上方填寫姓名,並按「▶ 開始練習」。','warn');return;}
+ if(G.done){toast('練習已結束,如要重做請按「↺ 重新開始」。','warn');return;}
+ if(a.indexOf('wiz:')===0&&!G.wiz){toast('表單精靈已關閉,請重新按「建立」→「表單精靈」。','warn');return;}
+ if(NEUT[a]){doAct(a,p);tryCheck();return;}
+ var s=STEPS[G.cur];
+ if(s&&s.allow.indexOf(a)>=0){doAct(a,p);tryCheck();return;}
+ badAct('現在不需要這個操作。目前任務:'+(s?s.t:'已完成'));
+}
+function doAct(a,p){
+ switch(a){
+  case 'tab': G.tab=p;G.menu=null;break;
+  case 'menu': G.menu=(G.menu===p?null:p);break;
+  case 'nav':
+    G.navSel=p;
+    if(p==='table'&&G.tabName){G.screen='datasheet';G.tab='常用';}
+    if(p==='form'&&G.form){G.screen='form';G.tab='常用';}
+    break;
+  case 'selrow': G.selRow=p;break;
+  case 'blankdb': G.dlg='newdb';G.dlgVal='資料庫1';break;
+  case 'createdb':
+    if(nm(G.dlgVal).replace(/\.accdb$/i,'')!=='中三社團'){badAct('檔案名稱要輸入「中三社團」');return;}
+    G.db='中三社團';G.dlg=null;G.screen='db';G.tab='建立';
+    toast('已建立資料庫 中三社團.accdb','ok');break;
+  case 'newtable': case 'tabledesign':
+    if(!G.db){badAct('要先建立資料庫');return;}
+    if(a==='newtable'){badAct('「資料表」會直接開啟資料工作表檢視,本練習要用「資料表設計」');return;}
+    G.screen='design';G.tab='設計';G.selRow=0;break;
+  case 'view:design':
+    if(!G.db){badAct('要先建立資料庫');return;}
+    G.screen='design';G.tab='設計';G.menu=null;break;
+  case 'view:datasheet':
+    if(!G.tabName){badAct('要先儲存資料表並命名,才能切換到資料工作表檢視');return;}
+    G.screen='datasheet';G.tab='常用';G.menu=null;break;
+  case 'save':
+    if(G.screen==='start'||!G.db){badAct('現在沒有東西可以儲存');return;}
+    if(!G.tabName){G.dlg='saveas';G.dlgVal='資料表1';}
+    else{G.saved=true;toast('已儲存資料表「成員資料」的變更','ok');}
+    break;
+  case 'saveok':
+    if(nm(G.dlgVal)!=='成員資料'){badAct('資料表名稱要輸入「成員資料」');return;}
+    G.tabName='成員資料';G.saved=true;G.dlg=null;G.navSel='table';break;
+  case 'pk':
+    if(G.screen!=='design'){badAct('要在設計檢視才可設定主索引鍵');return;}
+    if(G.selRow!==0||!G.fields[0]||nm(G.fields[0].name)!=='成員編號'){
+      badAct('請先按「成員編號」左邊的列選取器選取整列');return;}
+    G.pk=0;G.saved=false;toast('已設定主索引鍵','ok');break;
+  case 'formauto': badAct('本練習要用「表單精靈」,不是「表單」');return;
+  case 'formwizard':
+    if(!G.tabName){badAct('要先儲存資料表才能建立表單');return;}
+    G.dlg='wiz';
+    G.wiz={step:1,avail:G.fields.map(function(f){return f.name;}),sel:[],pickA:-1,pickS:-1,layout:'',title:''};
+    break;
+  case 'wiz:add':
+    if(G.wiz.pickA<0){toast('請先在左邊選一個欄位','warn');break;}
+    G.wiz.sel.push(G.wiz.avail.splice(G.wiz.pickA,1)[0]);G.wiz.pickA=-1;break;
+  case 'wiz:addall': G.wiz.sel=G.wiz.sel.concat(G.wiz.avail);G.wiz.avail=[];break;
+  case 'wiz:rem':
+    if(G.wiz.pickS<0){toast('請先在右邊選一個欄位','warn');break;}
+    G.wiz.avail.push(G.wiz.sel.splice(G.wiz.pickS,1)[0]);G.wiz.pickS=-1;break;
+  case 'wiz:remall': G.wiz.avail=G.wiz.avail.concat(G.wiz.sel);G.wiz.sel=[];break;
+  case 'wiz:layout': G.wiz.layout=p;break;
+  case 'wiz:back': G.wiz.step=Math.max(1,G.wiz.step-1);break;
+  case 'wiz:next':
+    if(G.wiz.step===1){
+      if(G.wiz.sel.length!==G.fields.length){badAct('要把全部 '+G.fields.length+' 個欄位加入「選定的欄位」(按 ≫)');return;}
+      G.wiz.step=2;
+    }else if(G.wiz.step===2){
+      if(G.wiz.layout!=='單欄式'){badAct('版面配置要選「單欄式」');return;}
+      G.wiz.step=3;
+    }
+    break;
+  case 'wiz:finish':
+    if(G.wiz.step!==3){badAct('請先按「下一步」完成前面的選擇');return;}
+    if(nm(G.wiz.title)!=='成員資料表單'){badAct('表單標題要輸入「成員資料表單」');return;}
+    G.form={name:'成員資料表單'};G.dlg=null;G.wiz=null;G.screen='form';G.navSel='form';
+    G.fIdx=0;G.fNew={};toast('已建立表單「成員資料表單」','ok');break;
+  case 'formnew': G.fIdx=G.records.length;G.fNew={};break;
+  case 'prev': G.fIdx=Math.max(0,G.fIdx-1);break;
+  case 'next': G.fIdx=Math.min(G.records.length,G.fIdx+1);break;
+  case 'formsave':
+    if(G.fIdx<G.records.length){badAct('請先按「▶* 新增空白記錄」再輸入新的一筆');return;}
+    if(!nm(G.fNew['成員編號'])){badAct('請先在表單輸入資料');return;}
+    G.records.push(JSON.parse(JSON.stringify(G.fNew)));
+    G.fIdx=G.records.length-1;G.fNew={};
+    toast('已儲存記錄','ok');break;
+  case 'dlgcancel': G.dlg=null;G.wiz=null;break;
+ }
+}
+
+/* ================= 資料輸入(soft:不重畫) ================= */
+function gridSet(r,k,v,soft){
+ if(r>G.fields.length){warnOnce('請由上而下順序輸入欄位,不要跳列。');return;}
+ if(!G.fields[r]){
+  if(k!=='name'||!nm(v))return;
+  G.fields[r]={name:v,type:'簡短文字',size:255,desc:''};
+ }else{
+  if(k==='name'&&!nm(v)&&r===G.fields.length-1){G.fields.pop();if(G.pk===r)G.pk=-1;}
+  else{
+   G.fields[r][k]=v;
+   if(k==='type')G.fields[r].size=(v==='簡短文字')?(G.fields[r].size||255):'';
+  }
+ }
+ G.saved=false;tryCheck(soft);
+}
+function cellSet(i,k,v,soft){
+ if(i>G.records.length){warnOnce('請由上而下順序輸入記錄。');return;}
+ if(!G.records[i])G.records[i]={};
+ G.records[i][k]=v;tryCheck(soft);
+}
+function formSet(k,v,soft){
+ if(G.fIdx>=G.records.length)G.fNew[k]=v; else G.records[G.fIdx][k]=v;
+ tryCheck(soft);
+}
+
+/* ================= 畫面 ================= */
+var RIBBON={
+ '檔案':[['nothing','新增','📄'],['nothing','開啟','📂'],['save','儲存','💾'],['save','另存新檔','🗎'],['nothing','關閉','✖']],
+ '常用':[['menu:view','檢視 ▾','🔁'],['nothing','貼上','📋'],['nothing','篩選','🔍'],['nothing','遞增排序','🔼'],['nothing','遞減排序','🔽'],['nothing','刪除','🗑']],
+ '建立':[['newtable','資料表','▦'],['tabledesign','資料表設計','📐'],['formauto','表單','▤'],['formwizard','表單精靈','🧙'],['nothing','查詢設計','❓'],['nothing','報表','📊']],
+ '設計':[['pk','主索引鍵','🔑'],['nothing','產生器','🛠'],['nothing','插入列','➕'],['nothing','刪除列','➖'],['nothing','索引','📑'],['menu:view','檢視 ▾','🔁']]
+};
+function renderRibbon(){
+ var tabs=['檔案','常用','建立'];
+ if(G.screen==='design')tabs.push('設計');
+ if(tabs.indexOf(G.tab)<0)G.tab=tabs[0];
+ $('#tabs').innerHTML=tabs.map(function(t){
+  return '<div class="'+(G.tab===t?'on':'')+'" data-a="tab" data-p="'+t+'">'+t+'</div>';}).join('');
+ var h=(RIBBON[G.tab]||[]).map(function(b){
+  return '<div class="rb" data-a="'+b[0]+'"><b>'+b[2]+'</b>'+b[1]+'</div>';}).join('');
+ if(G.menu==='view'){
+  h+='<div class="menu"><div data-a="view:datasheet">▦ 資料工作表檢視</div><div data-a="view:design">📐 設計檢視</div></div>';
+ }
+ $('#ribbon').innerHTML=h;
+}
+function renderNav(){
+ if(!G.db){$('#nav').innerHTML='<div class="ttl">導覽窗格</div><div style="color:#999">(尚未開啟資料庫)</div>';return;}
+ var h='<div class="ttl">所有 Access 物件</div><div class="grp">▸ 資料表</div>';
+ h+=G.tabName?'<div class="obj '+(G.navSel==='table'?'on':'')+'" data-a="nav" data-p="table">▦ '+esc(G.tabName)+'</div>'
+             :'<div style="color:#999;margin-left:10px">(未儲存)</div>';
+ h+='<div class="grp">▸ 表單</div>';
+ h+=G.form?'<div class="obj '+(G.navSel==='form'?'on':'')+'" data-a="nav" data-p="form">▤ '+esc(G.form.name)+'</div>'
+          :'<div style="color:#999;margin-left:10px">(尚未建立)</div>';
+ $('#nav').innerHTML=h;
+}
+function typeSel(i,v){
+ return '<select data-a="grid" data-r="'+i+'" data-k="type">'+TYPES.map(function(t){
+  return '<option value="'+t+'"'+(t===v?' selected':'')+'>'+(t||'　')+'</option>';}).join('')+'</select>';
+}
+function designHTML(){
+ var n=Math.max(G.fields.length+3,9),h='';
+ h+='<div style="font-size:12.5px;color:#666;margin-bottom:5px">📐 設計檢視 — '+esc(G.tabName||'資料表1')+'</div>';
+ h+='<table class="dg"><thead><tr><th class="sel"></th><th style="width:36%">欄位名稱</th><th style="width:26%">資料類型</th><th>描述(選填)</th></tr></thead><tbody>';
+ for(var i=0;i<n;i++){
+  var f=G.fields[i]||{name:'',type:'',size:'',desc:''};
+  h+='<tr class="'+(G.selRow===i?'selr':'')+'">'+
+   '<td class="sel" data-a="selrow" data-p="'+i+'">'+(G.pk===i?'🔑':(G.selRow===i?'▶':''))+'</td>'+
+   '<td><input data-a="grid" data-r="'+i+'" data-k="name" value="'+esc(f.name)+'"></td>'+
+   '<td>'+typeSel(i,f.type)+'</td>'+
+   '<td><input data-a="grid" data-r="'+i+'" data-k="desc" value="'+esc(f.desc||'')+'"></td></tr>';
+ }
+ h+='</tbody></table>';
+ var f2=G.fields[G.selRow];
+ h+='<div class="prop"><div class="ph">欄位屬性 — '+(f2?esc(f2.name):'(未選取欄位,請按左邊列選取器)')+'</div><table>';
+ if(f2&&f2.type==='簡短文字'){
+  h+='<tr><td class="k">欄位大小</td><td><input data-a="prop" data-k="size" value="'+esc(f2.size)+'"></td></tr>';
+ }else{
+  h+='<tr><td class="k">欄位大小</td><td style="color:#999">'+(f2?'(此資料類型不適用)':'—')+'</td></tr>';
+ }
+ h+='<tr><td class="k">格式</td><td style="color:#999">—</td></tr>'+
+    '<tr><td class="k">必須有資料</td><td style="color:#999">否</td></tr>'+
+    '<tr><td class="k">索引</td><td style="color:#999">'+(G.pk===G.selRow&&G.selRow>=0?'是(不可重複)':'否')+'</td></tr>'+
+    '</table></div>';
+ return h;
+}
+function datasheetHTML(){
+ if(!G.fields.length)return '<div style="color:#999">資料表沒有欄位。</div>';
+ var h='<div style="font-size:12.5px;color:#666;margin-bottom:5px">▦ 資料工作表檢視 — '+esc(G.tabName)+'</div>';
+ h+='<table class="ds"><thead><tr><th style="width:22px"></th>';
+ G.fields.forEach(function(f){h+='<th>'+esc(f.name)+'</th>';});
+ h+='</tr></thead><tbody>';
+ var rows=G.records.length+3;
+ for(var i=0;i<rows;i++){
+  var isNew=(i>=G.records.length),r=G.records[i]||{};
+  h+='<tr class="'+(isNew?'newr':'')+'"><td style="text-align:center;color:#888">'+(isNew?'*':(i+1))+'</td>';
+  G.fields.forEach(function(f){
+   if(f.type==='是/否'){
+    h+='<td class="ck"><input type="checkbox" data-a="cell" data-i="'+i+'" data-k="'+esc(f.name)+'"'+(r[f.name]===true?' checked':'')+'></td>';
+   }else{
+    h+='<td><input data-a="cell" data-i="'+i+'" data-k="'+esc(f.name)+'" value="'+esc(r[f.name]==null?'':r[f.name])+'"></td>';
+   }
+  });
+  h+='</tr>';
+ }
+ h+='</tbody></table><div style="font-size:12px;color:#777;margin-top:5px">※ 標「*」的是新增記錄列,直接輸入便會新增一筆。可以連續打字,不會跳格。</div>';
+ return h;
+}
+function formHTML(){
+ var isNew=(G.fIdx>=G.records.length),r=isNew?G.fNew:(G.records[G.fIdx]||{});
+ var h='<div class="formv"><div class="fh">▤ '+esc(G.form.name)+'</div>';
+ G.fields.forEach(function(f){
+  h+='<div class="r"><span>'+esc(f.name)+'</span>';
+  if(f.type==='是/否')h+='<input type="checkbox" data-a="formfield" data-k="'+esc(f.name)+'"'+(r[f.name]===true?' checked':'')+'>';
+  else h+='<input type="text" data-a="formfield" data-k="'+esc(f.name)+'" value="'+esc(r[f.name]==null?'':r[f.name])+'">';
+  h+='</div>';
+ });
+ h+='<div class="fnav"><button data-a="prev">◀</button>'+
+  '<span>記錄 '+(isNew?'新增(空白)':(G.fIdx+1)+' / '+G.records.length)+'</span>'+
+  '<button data-a="next">▶</button><button data-a="formnew">▶* 新增空白記錄</button>'+
+  '<button data-a="formsave" style="background:#2e8b57;color:#fff;border-color:#2e8b57;font-weight:bold">💾 儲存記錄</button></div></div>';
+ return h;
+}
+function renderWork(){
+ var h='';
+ if(G.screen==='start'){
+  h='<div class="startpane"><div style="font-size:15px;color:#7c2529;font-weight:bold;margin-bottom:12px">Microsoft Access(模擬)</div>'+
+   '<div class="tile" data-a="blankdb"><b>🗄️</b>空白資料庫</div>'+
+   '<div class="tile" data-a="nothing"><b>📂</b>開啟其他檔案</div>'+
+   '<div class="tile" data-a="nothing"><b>📋</b>範本</div></div>';
+ }else if(G.screen==='db'){
+  h='<div style="color:#666;padding:20px">資料庫 <b>'+esc(G.db)+'.accdb</b> 已開啟。<br>請在「建立」索引標籤選擇要建立的物件。</div>';
+ }else if(G.screen==='design'){h=designHTML();}
+ else if(G.screen==='datasheet'){h=datasheetHTML();}
+ else if(G.screen==='form'){h=formHTML();}
+ $('#work').innerHTML=h;
+ $('#tbTitle').textContent=G.db?(G.db+'.accdb — Access'):'Access';
+ $('#sb1').textContent=({start:'開始畫面',db:'就緒',design:'設計檢視',datasheet:'資料表檢視',form:'表單檢視'})[G.screen]||'就緒';
+ $('#sb2').textContent=(G.tabName?'資料表:'+G.tabName+'　':'')+(G.records.length?'記錄:'+G.records.length+' 筆':'');
+}
+function renderCur(){
+ var el=$('#cur');
+ if(!G.started){
+  el.style.background='#f7f8fa';el.style.borderColor='#ccd3db';
+  el.innerHTML='<div class="top"><span class="ti" style="color:#666">請先填寫上面的班別、姓名,再按「▶ 開始練習」。</span></div>';
+  return;
+ }
+ el.style.background='#eef9f1';el.style.borderColor='#2e8b57';
+ var s=STEPS[G.cur];
+ if(!s){
+  el.innerHTML='<div class="top"><span class="no">完成</span><span class="ti">18 個任務全部完成,請按右上角「✅ 完成並產生報告」</span></div>';
+  return;
+ }
+ var used=G.hinted[G.cur]?'(此任務已扣過)':'(-'+HINT_PEN+' 分)';
+ var h='<div class="top"><span class="no">任務 '+(G.cur+1)+' / 18　'+s.id+'</span>'+
+  '<span class="ti">'+esc(s.t)+'</span><span class="mk">'+s.m+' 分</span>'+
+  '<button id="bHint2">💡 提示 '+used+'</button></div>';
+ h+='<div class="dt">'+s.d+'</div>';
+ h+='<div class="hh" id="hh2"'+(G.showHint?' style="display:block"':'')+'>💡 '+esc(s.h)+'</div>';
+ el.innerHTML=h;
+ var b=$('#bHint2');
+ if(b)b.onclick=function(){
+  if(!G.hinted[G.cur]){G.hinted[G.cur]=1;G.hints++;toast('已看提示,扣 '+HINT_PEN+' 分','warn');}
+  G.showHint=true;renderCur();renderTasks();
+ };
+}
+function renderTasks(){
+ var h='';
+ STEPS.forEach(function(s,i){
+  var cls=s.ok?'tk ok':(i===G.cur?'tk now':'tk');
+  var st=s.ok?'✔':(i===G.cur?'▶':'○');
+  h+='<div class="'+cls+'"><span class="m">'+s.m+'分</span><span class="st">'+st+'</span>'+s.id+' '+esc(s.t)+'</div>';
+ });
+ $('#tasks').innerHTML=h;
+ $('#pbar').style.width=(got()/FULL*100)+'%';
+ $('#hsc').textContent='得分 '+got()+' / '+FULL+(dedAll()?'(扣 '+dedAll()+' 分 → '+finalScore()+')':'');
+ $('#hhe').textContent='提示 '+G.hints+' 次(-'+dedH()+') ｜ 誤操作 '+G.errs+' 次(-'+dedE()+')';
+}
+function render(){renderRibbon();renderNav();renderWork();renderCur();renderTasks();}
+
+/* ================= 事件 ================= */
+document.addEventListener('click',function(e){
+ var el=e.target.closest('[data-a]');
+ if(!el)return;
+ if(el.tagName==='INPUT'||el.tagName==='SELECT')return;   /* 輸入格與核取方塊由 input/change 處理 */
+ var a=el.getAttribute('data-a'),p=el.getAttribute('data-p');
+ if(a==='wizsel'){
+  if(!G.wiz)return;
+  if(el.getAttribute('data-side')==='a')G.wiz.pickA=+p;else G.wiz.pickS=+p;
+  renderDlg();return;
+ }
+ if(a==='selrow'){act('selrow',+p);return;}
+ if(a==='menu:view'){act('menu','view');return;}
+ act(a,p);
+ if(G.dlg)renderDlg();else closeDlg();
+});
+document.addEventListener('input',function(e){
+ var el=e.target.closest('[data-a]');if(!el)return;
+ if(el.type==='checkbox'||el.type==='radio')return;       /* 核取方塊只由 change 處理 */
+ var a=el.getAttribute('data-a');
+ if(a==='grid'){gridSet(+el.getAttribute('data-r'),el.getAttribute('data-k'),el.value,true);}
+ else if(a==='cell'){cellSet(+el.getAttribute('data-i'),el.getAttribute('data-k'),el.value,true);}
+ else if(a==='prop'){var f=G.fields[G.selRow];if(f){f.size=el.value;G.saved=false;tryCheck(true);}}
+ else if(a==='formfield'){formSet(el.getAttribute('data-k'),el.value,true);}
+ else if(a==='dlgtext'){G.dlgVal=el.value;}
+ else if(a==='wiztitle'){if(G.wiz)G.wiz.title=el.value;}
+});
+document.addEventListener('change',function(e){
+ var el=e.target.closest('[data-a]');if(!el)return;
+ var a=el.getAttribute('data-a');
+ if(el.tagName==='SELECT'&&a==='grid'){gridSet(+el.getAttribute('data-r'),'type',el.value,false);return;}
+ if(el.type==='checkbox'){
+  if(a==='cell')cellSet(+el.getAttribute('data-i'),el.getAttribute('data-k'),el.checked,false);
+  else if(a==='formfield')formSet(el.getAttribute('data-k'),el.checked,false);
+  return;
+ }
+ if(a==='wiz:layout'){act('wiz:layout',el.value);renderDlg();return;}
+ scheduleRefresh();
+});
+
+/* ================= 對話框 ================= */
+function closeDlg(){if(!G.dlg){$('#layer').style.display='none';$('#layer').innerHTML='';}}
+function renderDlg(){
+ var h='';
+ if(G.dlg==='newdb'){
+  h='<div class="dlg" style="max-width:460px"><div class="h">空白資料庫</div><div class="b">'+
+   '<div style="font-size:13px;margin-bottom:8px">請輸入新資料庫的檔案名稱:</div>'+
+   '<label class="f">檔案名稱 <input type="text" data-a="dlgtext" value="'+esc(G.dlgVal)+'" style="width:210px"></label>'+
+   '<div style="font-size:12px;color:#777;margin-top:6px">儲存位置:D:\\學生檔案\\(副檔名 .accdb 會自動加上)</div>'+
+   '</div><div class="f"><button data-a="dlgcancel">取消</button><button class="pri" data-a="createdb">建立</button></div></div>';
+ }else if(G.dlg==='saveas'){
+  h='<div class="dlg" style="max-width:400px"><div class="h">另存新檔</div><div class="b">'+
+   '<label class="f">資料表名稱 <input type="text" data-a="dlgtext" value="'+esc(G.dlgVal)+'" style="width:180px"></label>'+
+   '</div><div class="f"><button data-a="dlgcancel">取消</button><button class="pri" data-a="saveok">確定</button></div></div>';
+ }else if(G.dlg==='wiz'&&G.wiz){
+  var w=G.wiz;
+  h='<div class="dlg"><div class="h">表單精靈 — 步驟 '+w.step+' / 3</div><div class="b">';
+  if(w.step===1){
+   h+='<div style="font-size:13px;margin-bottom:8px">您想在表單上使用哪些欄位?(資料表:成員資料)</div><div class="wizbox">'+
+    '<div style="flex:1"><div style="font-size:12px;color:#666">可用的欄位</div><div class="wizlist">'+
+     w.avail.map(function(x,i){return '<div class="'+(w.pickA===i?'on':'')+'" data-a="wizsel" data-side="a" data-p="'+i+'">'+esc(x)+'</div>';}).join('')+
+    '</div></div><div class="wizbtn">'+
+    '<button data-a="wiz:add">&gt;</button><button data-a="wiz:addall">&gt;&gt;</button>'+
+    '<button data-a="wiz:rem">&lt;</button><button data-a="wiz:remall">&lt;&lt;</button></div>'+
+    '<div style="flex:1"><div style="font-size:12px;color:#666">選定的欄位</div><div class="wizlist">'+
+     w.sel.map(function(x,i){return '<div class="'+(w.pickS===i?'on':'')+'" data-a="wizsel" data-side="s" data-p="'+i+'">'+esc(x)+'</div>';}).join('')+
+    '</div></div></div>';
+  }else if(w.step===2){
+   h+='<div style="font-size:13px;margin-bottom:8px">請選擇表單的版面配置:</div>';
+   ['單欄式','表格式','資料工作表','對齊'].forEach(function(x){
+    h+='<label class="f" style="display:block"><input type="radio" name="lay" value="'+x+'" data-a="wiz:layout"'+(w.layout===x?' checked':'')+'> '+x+'</label>';});
+  }else{
+   h+='<div style="font-size:13px;margin-bottom:8px">請為表單命名(此名稱也會成為表單標題):</div>'+
+    '<input type="text" data-a="wiztitle" value="'+esc(w.title)+'" style="width:250px">';
+  }
+  h+='</div><div class="f"><button data-a="dlgcancel">取消</button>'+
+   (w.step>1?'<button data-a="wiz:back">上一步</button>':'')+
+   (w.step<3?'<button class="pri" data-a="wiz:next">下一步 &gt;</button>':'<button class="pri" data-a="wiz:finish">完成</button>')+
+   '</div></div>';
+ }
+ if(!h){$('#layer').style.display='none';$('#layer').innerHTML='';return;}
+ $('#layer').innerHTML=h;$('#layer').style.display='flex';
+ var fi=$('#layer').querySelector('input[type=text]');if(fi){fi.focus();fi.select();}
+}
+
+/* ================= 計時 ================= */
+setInterval(function(){
+ if(!G.started||G.done)return;
+ var sec=Math.floor((Date.now()-G.t0)/1000);
+ $('#htime').textContent='⏱ '+two(Math.floor(sec/60))+':'+two(sec%60);
+},500);
+
+/* ================= 開始 / 重設 ================= */
+$('#bGo').onclick=function(){
+ var n=$('#iNm').value.trim(),c=$('#iCls').value.trim().toUpperCase(),s=$('#iSid').value.trim();
+ if(!n||!c){alert('請填寫班別及姓名。');return;}
+ reset();G.started=true;G.nm=n;G.cls=c;G.sid=s;G.t0=Date.now();
+ $('#iNm').disabled=$('#iCls').disabled=$('#iSid').disabled=$('#bGo').disabled=$('#bDemo').disabled=true;
+ $('#hwho').textContent=c+' '+(s?s+' ':'')+n;
+ toast('練習開始!請看綠色「目前任務」欄的指示。','ok');
+ render();
+};
+$('#bReset').onclick=function(){
+ if(!confirm('重新開始?目前進度與分數會清除。'))return;
+ reset();
+ $('#iNm').disabled=$('#iCls').disabled=$('#iSid').disabled=$('#bGo').disabled=$('#bDemo').disabled=false;
+ $('#hwho').textContent='未開始';$('#htime').textContent='⏱ 00:00';
+ $('#layer').style.display='none';$('#layer').innerHTML='';
+ render();
+};
+
+/* ================= 報告 ================= */
+function buildData(){
+ var sec=Math.max(1,Math.floor(((G.t1||Date.now())-G.t0)/1000));
+ var key='accEX3sub:'+G.cls+'|'+G.nm,sub=1;
+ try{sub=(+localStorage.getItem(key)||0)+1;localStorage.setItem(key,sub);}catch(e){}
+ return {ex:'EX3',title:'綜合練習:建立資料表、新增欄位及建立表單',
+  name:G.nm,cls:G.cls,sid:G.sid,
+  start:new Date(G.t0).toLocaleString('zh-HK',{hour12:false}),
+  end:new Date(G.t1||Date.now()).toLocaleString('zh-HK',{hour12:false}),
+  dur:two(Math.floor(sec/60))+' 分 '+two(sec%60)+' 秒',
+  hints:G.hints,errs:G.errs,submits:sub,
+  raw:got(),full:FULL,dh:dedH(),de:dedE(),final:finalScore(),
+  pct:Math.round(finalScore()/FULL*100)};
+}
+function stepTable(){
+ var h='<table><tr><th>任務</th><th>內容</th><th class="c">配分</th><th class="c">得分</th></tr>';
+ STEPS.forEach(function(s){
+  h+='<tr><td class="c">'+s.id+'</td><td>'+esc(s.t)+'</td><td class="c">'+s.m+'</td>'+
+   '<td class="c" style="color:'+(s.ok?'#0a7a3f':'#b00')+';font-weight:bold">'+(s.ok?s.m:0)+'</td></tr>';
+ });
+ return h+'</table>';
+}
+function reportHTML(d,dg,cd){
+ return '<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><title>Access 綜合練習報告 — '+esc(d.name)+
+ '</title><style>body{font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif;margin:14mm;color:#222;font-size:13px}'+
+ 'h1{font-size:18px;color:#7c2529;margin:0 0 6px}table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:8px}'+
+ 'th,td{border:1px solid #999;padding:4px 6px}th{background:#eceff3}td.c{text-align:center}'+
+ '.code{font-family:Consolas,monospace;font-size:18px;font-weight:bold;letter-spacing:2px;color:#7c2529;border:2px dashed #c39da0;padding:7px;text-align:center;margin-top:8px}'+
+ '.dig{font-family:Consolas,monospace;font-size:10px;word-break:break-all;border:1px solid #ccc;background:#f6f6f6;padding:6px;margin-top:5px}'+
+ '</style></head><body><h1>中三 電腦科 — Access 綜合練習(練習一 + 練習二)成績報告</h1>'+
+ '<table><tr><th style="width:110px">姓名</th><td>'+esc(d.name)+'</td><th style="width:80px">班別</th><td>'+esc(d.cls)+
+ '</td><th style="width:80px">班號</th><td>'+esc(d.sid)+'</td></tr>'+
+ '<tr><th>開始時間</th><td>'+esc(d.start)+'</td><th>完成時間</th><td>'+esc(d.end)+'</td><th>用時</th><td>'+esc(d.dur)+'</td></tr>'+
+ '<tr><th>提示次數</th><td>'+d.hints+' 次(扣 '+d.dh+' 分)</td><th>誤操作</th><td>'+d.errs+' 次(扣 '+d.de+
+ ' 分)</td><th>提交次數</th><td>'+d.submits+'</td></tr>'+
+ '<tr><th>操作得分</th><td>'+d.raw+' / '+d.full+'</td><th>最終得分</th><td colspan="3" style="font-size:16px;font-weight:bold;color:#7c2529">'+
+ d.final+' / '+d.full+'('+d.pct+'%)</td></tr></table>'+stepTable()+
+ '<p style="margin-top:12px"><b>防偽驗證碼(請連同下方摘要碼一併交給老師)</b></p><div class="code">'+cd+'</div>'+
+ '<p style="margin:8px 0 0"><b>摘要碼</b></p><div class="dig">'+dg+'</div>'+
+ '<p style="margin-top:14px;font-size:12px;color:#666">此報告由練習程式自動產生,如內容被修改,老師的批改工具會顯示「驗證碼不符」。</p>'+
+ '<p style="font-size:12px">學生簽署:______________　家長簽署:______________　日期:__________</p></body></html>';
+}
+$('#bSub').onclick=function(){
+ if(!G.started){toast('請先按「▶ 開始練習」。','warn');return;}
+ if(G.demo){alert('示範模式的成績不會計算,亦不會產生驗證碼。請按「↺ 重新開始」後由學生正式作答。');return;}
+ var left=STEPS.length-G.cur;
+ if(left>0&&!confirm('還有 '+left+' 個任務未完成(未完成的任務不會得分)。\n確定現在提交嗎?'))return;
+ G.t1=Date.now();G.done=true;
+ var d=buildData(),dg=b64e(JSON.stringify(d)),cb=codeBody(dg),cd='ACC3-'+cb.slice(0,4)+'-'+cb.slice(4,8);
+ $('#layer').innerHTML='<div class="dlg" style="max-width:720px"><div class="h">✅ 練習完成 — 成績報告</div><div class="b rep">'+
+  '<table><tr><th style="width:90px">姓名</th><td>'+esc(d.name)+'</td><th style="width:70px">班別</th><td>'+esc(d.cls)+
+  '</td><th style="width:70px">班號</th><td>'+esc(d.sid)+'</td></tr>'+
+  '<tr><th>用時</th><td>'+esc(d.dur)+'</td><th>提示</th><td>'+d.hints+' 次(-'+d.dh+')</td><th>誤操作</th><td>'+d.errs+' 次(-'+d.de+')</td></tr>'+
+  '<tr><th>操作得分</th><td>'+d.raw+' / 40</td><th>最終得分</th><td colspan="3" style="font-size:17px;font-weight:bold;color:#7c2529">'+
+  d.final+' / 40('+d.pct+'%)</td></tr></table>'+stepTable()+
+  '<div style="margin-top:10px;font-weight:bold">防偽驗證碼(交給老師)</div><div class="code">'+cd+'</div>'+
+  '<div style="margin-top:8px;font-weight:bold">摘要碼</div><div class="dig">'+dg+'</div>'+
+  '</div><div class="f"><button data-x="copy">📋 複製摘要碼</button><button data-x="dl">⬇ 下載報告</button>'+
+  '<button data-x="pr">🖨 列印</button><button class="pri" data-x="cl">關閉</button></div></div>';
+ $('#layer').style.display='flex';
+ $('#layer').querySelector('[data-x=copy]').onclick=function(){
+  var t=cd+'\n'+dg;
+  function fb(){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+   try{document.execCommand('copy');}catch(e){}ta.remove();alert('已複製,請貼給老師。');}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){alert('已複製驗證碼及摘要碼。');},fb);else fb();
+ };
+ $('#layer').querySelector('[data-x=dl]').onclick=function(){
+  var b=new Blob([reportHTML(d,dg,cd)],{type:'text/html;charset=utf-8'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='綜合練習_'+d.cls+'_'+(d.sid||'00')+'_'+d.name+'.html';
+  document.body.appendChild(a);a.click();a.remove();
+ };
+ $('#layer').querySelector('[data-x=pr]').onclick=function(){
+  var w=window.open('','_blank');if(!w){alert('請允許彈出視窗。');return;}
+  w.document.write(reportHTML(d,dg,cd));w.document.close();w.focus();setTimeout(function(){w.print();},400);
+ };
+ $('#layer').querySelector('[data-x=cl]').onclick=function(){$('#layer').style.display='none';$('#layer').innerHTML='';};
+};
+
+/* ================= 教師一鍵示範 ================= */
+$('#bDemo').onclick=function(){
+ if(!confirm('示範模式會自動完成全部 18 個任務(不會產生成績)。繼續?'))return;
+ reset();G.started=true;G.demo=true;G.nm='示範';G.cls='DEMO';G.t0=Date.now();
+ $('#hwho').textContent='🎬 示範模式(不計分)';
+ var t=setInterval(function(){
+  var s=STEPS[G.cur];
+  if(!s){clearInterval(t);toast('示範完成:18 個任務全部通過(共 40 分)','ok');render();return;}
+  demoStep(s.id);tryCheck(false);
+ },700);
+};
+function demoStep(id){
+ switch(id){
+  case 'A1': G.dlg='newdb';G.dlgVal='資料庫1';renderDlg();break;
+  case 'A2': G.dlgVal='中三社團';doAct('createdb');$('#layer').style.display='none';$('#layer').innerHTML='';break;
+  case 'A3': doAct('tabledesign');break;
+  case 'A4': G.fields=EXPF.slice(0,5).map(function(f){return {name:f.n,type:'簡短文字',size:255,desc:''};});break;
+  case 'A5': G.fields[3].type='日期/時間';G.fields[3].size='';G.fields[4].type='貨幣';G.fields[4].size='';break;
+  case 'A6': G.selRow=0;doAct('pk');break;
+  case 'A7': G.dlg='saveas';G.dlgVal='成員資料';doAct('saveok');$('#layer').style.display='none';$('#layer').innerHTML='';break;
+  case 'A8': doAct('view:datasheet');
+    G.records[0]={'成員編號':'S001','姓名':'陳大文','班別':'3A','加入日期':'2025/9/1','會費':'50'};
+    G.records[1]={'成員編號':'S002','姓名':'李小明','班別':'3B','加入日期':'2025/9/2','會費':'50'};break;
+  case 'B1': doAct('view:design');break;
+  case 'B2': G.fields[5]={name:'聯絡電話',type:'簡短文字',size:255,desc:''};break;
+  case 'B3': G.fields[6]={name:'是否繳費',type:'是/否',size:'',desc:''};break;
+  case 'B4': G.selRow=1;G.fields[1].size=20;break;
+  case 'B5': doAct('save');break;
+  case 'B6': doAct('formwizard');renderDlg();break;
+  case 'B7': doAct('wiz:addall');doAct('wiz:next');renderDlg();break;
+  case 'B8': G.wiz.layout='單欄式';doAct('wiz:next');renderDlg();break;
+  case 'B9': G.wiz.title='成員資料表單';doAct('wiz:finish');$('#layer').style.display='none';$('#layer').innerHTML='';break;
+  case 'B10': G.fIdx=G.records.length;
+    G.fNew={'成員編號':'S003','姓名':'王志強','班別':'3C','加入日期':'2025/9/3','會費':'50','聯絡電話':PHONE,'是否繳費':true};
+    doAct('formsave');break;
+ }
+}
+
+/* ================= 啟動 ================= */
+reset();render();
+</script>
+</html>
